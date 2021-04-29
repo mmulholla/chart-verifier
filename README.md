@@ -35,9 +35,9 @@ will be provided when this functionality will be added.
 
 ### Pre Requisities
 
-- Docker ?
-- ???
+- Docker installed.
 - Internet Connection: The check that images are Red Hat Certified requires an internet connection.  
+- Github Id: To submit a chart to the Red Hat Repository.
 
 ### Know before you start
 
@@ -47,56 +47,64 @@ will be provided when this functionality will be added.
 
 ### Basic Usage with Docker
 
-To run the version required for chart submission use:
+1. To run all checks for a chart available using a uri: 
+   ```
+   docker run -it --rm quay.io/redhat-certification/chart-verifier verify <chart-uri>
+   ```
+1. For a chart available locally on disk, from the same directory as the chart: 
+   ```
+   docker run -v $(pwd):/charts --rm quay.io/redhat-certification/chart-verifier verify /charts/<chart>
+   ``` 
+1. To get a list of option for the verify request:
+   ```
+   docker run -it --rm quay.io/redhat-certification/chart-verifier verify help
+   ```
+   This will produce the following output:
+   ```
+   Verifies a Helm chart by checking some of its characteristics
 
-```
-docker run -it --rm quay.io/redhat-certification/chart-verifier:0d3706f verify <chart-uri>
-```
+   Usage:
+     chart-verifier verify <chart-uri> [flags]
 
-This will run all required checks and output the report in yaml format to stdout. However, for submission purposes the 
-output must be captured in a file `report.yaml`: 
+   Flags:
+      -S, --chart-set strings          set values for the chart (can specify multiple or separate values with commas: key1=val1,key2=val2)
+      -F, --chart-set-file strings     set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)
+      -X, --chart-set-string strings   set STRING values for the chart (can specify multiple or separate values with commas: key1=val1,key2=val2)
+      -f, --chart-values strings       specify values in a YAML file or a URL (can specify multiple)
+      -x, --disable strings            all checks will be enabled except the informed ones
+      -e, --enable strings             only the informed checks will be enabled
+      -h, --help                       help for verify
+      -o, --output string              the output format: default, json or yaml
+      -s, --set strings                overrides a configuration, e.g: dummy.ok=false
 
-```
-docker run -it --rm quay.io/redhat-certification/chart-verifier:0d3706f verify <chart-uri> 2> report.yaml
-```
+    Global Flags:
+          --config string   config file (default is $HOME/.chart-verifier.yaml)
+   ```
 
-To get a full list of options for running the command run: 
+### Examples 
 
-```
-docker run -it --rm quay.io/redhat-certification/chart-verifier:0d3706f verify help
-```
-
-This will produce the following output:
-```
-Verifies a Helm chart by checking some of its characteristics
-
-Usage:
-  chart-verifier verify <chart-uri> [flags]
-
-Flags:
-  -S, --chart-set strings          set values for the chart (can specify multiple or separate values with commas: key1=val1,key2=val2)
-  -F, --chart-set-file strings     set values from respective files specified via the command line (can specify multiple or separate values with commas: key1=path1,key2=path2)
-  -X, --chart-set-string strings   set STRING values for the chart (can specify multiple or separate values with commas: key1=val1,key2=val2)
-  -f, --chart-values strings       specify values in a YAML file or a URL (can specify multiple)
-  -x, --disable strings            all checks will be enabled except the informed ones
-  -e, --enable strings             only the informed checks will be enabled
-  -h, --help                       help for verify
-  -o, --output string              the output format: default, json or yaml
-  -s, --set strings                overrides a configuration, e.g: dummy.ok=false
-
-Global Flags:
-      --config string   config file (default is $HOME/.chart-verifier.yaml)
-```
-
+1. Run a subset of checks:
+   ```
+   chart-verifier verify -e images-are-certified,helm-lint
+   ```
+1. Run all checks except a subset:
+   ```
+   chart-verifier verify -x images-are-certified,helm-lint
+   ```
+1. Provide chart override values:   
+   ```
+   chart-verifier verify -S default.port=8080 images-are-certified,helm-lint
+   ```
+1. Provide chart override values in a file:  
+   ```
+   chart-verifier verify -F overrides.yaml images-are-certified,helm-lint
+   ```
+   
 ### Notes on usage
 
 The checks performed include running ```helm lint```, and ```helm template```(for red hat image certification) against 
 the chart. As a result if the chart requires additional values for these to succeed the values must be specified using 
 the options available. These options are similar to those use by ```helm lint``` and ```helm template```.
-
-```bash
-INCLUDE SAMPLE
-```
 
 Note, for ``helm lint`` the check will pass if there are no error messages - warning and info messages do not cause the check to fail.
 
@@ -116,35 +124,68 @@ Note, for ``helm lint`` the check will pass if there are no error messages - war
 | **2. Helm Chart extracted Tarball** | Submit your Chart with its extracted tarball (`chart-verifier`'s report optional).
 | **3. chart-verifier Report only** | When your Chart will not be hosted in the Red Hat Helm repository, you can just submit the generated report from `chart-verifier` tool.
 
+
+### Preparing to submit 
+
+1. Complete partner registration for each chart. This result in a file being created in the Red Hat helm repository
+   ```
+   chart/partners/<partner-name>/<chart-name>/OWNERS
+   ```
+1. Clone Red Hat Helm Repository:
+    ```
+    git clone https://github.com/openshift-helm-charts/repo.git
+   ```
+1. Create a fork of the Red Hat Helm Repository, and create a [git triangle workflow](https://gist.github.com/anjohnson/8994c95ab2a06f7d2339).
+1. Add a directory for the version of the chart you will be submitting
+   ```
+   chart/partners/<partner-name>/<chart-name>/<chart-version>
+   ```
+   Note: the name and version in the chart must match this directory structure.
+
 ### Option1: Submitting Helm Chart as a Tarball
 
-...
+1. Add the tarball to the directory created above:
+   ```chart/partners/<partner-name>/<chart-name>/<chart-version>/<Chart>.tgz```
+   Note: the chart name and version in the chart must match the directory structure.
+2. If you are also including a chart verifier report, from the same directory run:
+   ```
+   docker run -v $(pwd):/charts --rm quay.io/redhat-certification/chart-verifier verify /charts/<chart>.tgz 2>report.yaml
+   ```
+   This creates the report: ```chart/partners/<partner-name>/<chart-name>/<chart-version>/report.yaml```
+   You should check its content to ensure all checks have passed.
 
 ### Option2: Submitting Helm Chart extracted Tarball
 
-...
+1. Add the extracted tarball to the directory in created above:
+   ```chart/partners/<partner-name>/<chart-name>/<chart-version>/src/<extracted-tarball>```
+   Note: the chart name and version in the chart must match the directory structure.
+1. If you are also including a chart verifier report, from the same directory run:
+   ```
+   docker run -v $(pwd):/charts --rm quay.io/redhat-certification/chart-verifier verify /charts/src 2>report.yaml
+   ```
+   This creates the report:
+   ```chart/partners/<partner-name>/<chart-name>/<chart-version>/report.yaml```
+   You should check its content to ensure all checks have passed.
 
 ### Option3: Submitting with only `chart-verifier` report
 
-...
+1. From the directory created above generate a verifier report for the chart:  
+   ```
+   docker run -it --rm quay.io/redhat-certification/chart-verifier verify <chart-uri> 2>report.yaml
+   ```
+   This creates the report:
+   ```chart/partners/<partner-name>/<chart-name>/<chart-version>/report.yaml```
+   You should check its content to ensure all checks have passed.
+   
+### All options
+1. Create a branch, commit the files created and push to your personal fork.
+1. To test the branch against the submission checks, create a pull request to merge your branch into your personal fork.
+1. When ready to submit create a pull request to merge the branch into the Red Hat repository.
 
 
-If a report is not included it will be generated as part of the submission process.
+### Notes
 
-A chart will be submitted in a directory structure:
-
-```charts/partners/<partnter-name>/<chart-name/<chart-version>/```
-
-if included, the generated report is included in the same directory 
-
-```charts/partners/<partnter-name>/<chart-name/<chart-version>/report.yaml```
-
-further the report should be signed: 
-
-```gpg --sign --armor --output report.yaml.asc --detach-sign report.yaml```
-
-this generates a report.yaml.asc file which must submitted along with the report. For more information on
-signing see: https://help.ubuntu.com/community/GnuPrivacyGuardHowto.
+If a report is not included it will be generated as part of the submission process. 
 
 When a Chart is submitted a series of checks will be run against the associated Pull Request. The PR will fail
 and an exception process will be started if the report contains one or more failures or is missing any mandatory 
@@ -159,7 +200,7 @@ a tarball, run the report against the tarball that will be submitted. This is im
 and record a sha256 value for the chart. The submission process will then re-generate the sha256 value and the process 
 will fail if the sha values do not match.
 
-If a succesful run of the report requires additional values to be specified the report must be submitted with the chart.
+If a successful run of the report requires additional values to be specified the report must be submitted with the chart.
 This is because the submission process does not have access to the values and the report generated would inevitably include
 failures.
 

@@ -2,7 +2,9 @@
 
 `chart-verifier` is a tool that verifies a Helm chart is compliant against a configurable list of checks. 
 
-This tool can be used to help ensuring the quality of Helm Charts, from its associated metadatas, formating and readiness for distribution. Additionnaly, it also helps ensuring the Helm Chart will work seamlessly on Red Hat OpenShift and can be submitted as a certified Helm Chart in the [Red Hat Helm Repository](https://github.com/openshift-helm-charts).
+This tool can be used to help ensure the quality of Helm Charts, from its associated metadatas, formating and 
+readiness for distribution. Additionaly, it helps ensure that a  Helm Chart will work seamlessly on Red Hat 
+OpenShift and can be submitted as a certified Helm Chart in the [Red Hat Helm Repository](https://github.com/openshift-helm-charts).
 
 ## Features
 
@@ -15,34 +17,35 @@ This tool can be used to help ensuring the quality of Helm Charts, from its asso
 
 The following checks have been implemented:
 
-| Check | Description
+| Check | Type | Description
 |---|---
-| `is-helm-v3` | Checks whether the given `uri` is a Helm v3 chart.
-| `has-readme` | Checks whether the Helm chart contains a `README.md` file.
-| `contains-test` | Checks whether the Helm chart contains at least one test file.
-| `has-minkubeversion` | Checks whether the Helm chart's `Chart.yaml` includes the `minKubeVersion` field.
-| `contains-values-schema` | Checks whether the Helm chart contains a values schema.
-| `not-contains-crds` | Checks whether the Helm chart does not include CRDs.
-| `not-contain-csi-objects` | Checks whether the Helm chart does not include CSI objects.
-| `images-are-certified` | Checks whether images referenced by the helm chart are Red Hat certified images.  
-| `helm-lint` | Runs the helm lint command to check that the chart is wel formed.
-| `contains-values` | Checks whether the Helm chart contains a values file.
+| `is-helm-v3` | Mandatory | Checks whether the given `uri` is a Helm v3 chart.
+| `has-readme` | Mandatory | Checks whether the Helm chart contains a `README.md` file.
+| `contains-test` | Mandatory | Checks whether the Helm chart contains at least one test file.
+| `has-minkubeversion` | Mandatory | Checks whether the Helm chart's `Chart.yaml` includes the `minKubeVersion` field.
+| `contains-values-schema` | Mandatory | Checks whether the Helm chart contains a values schema.
+| `not-contains-crds` | Mandatory | Checks whether the Helm chart does not include CRDs.
+| `not-contain-csi-objects` | Mandatory | Checks whether the Helm chart does not include CSI objects.
+| `images-are-certified` | Mandatory | Checks whether images referenced by the helm chart are Red Hat certified images.  
+| `helm-lint` | Mandatory | Runs the helm lint command to check that the chart is wel formed.
+| `contains-values` | Mandatory | Checks whether the Helm chart contains a values file.
 
 Further the checks include installing the chart on an available cluster and running the chart tests. Information on this 
 will be provided when this functionality will be added.
+
+All current checks are of type "Mandatory". Mandatory indicates that a check is required for chart submission. 
 
 ## Usage
 
 ### Pre Requisities
 
 - Docker installed.
-- Internet Connection: The check that images are Red Hat Certified requires an internet connection.  
-- Github Id: To submit a chart to the Red Hat Repository.
+- Internet Connection: The check that images are Red Hat Certified requires an internet connection.
+- OCP Cluster. 
 
 ### Know before you start
 
-- Individual checks can be included or excluded through command line options. 
-- The default set of tests covers Red Hat’s submission requirements.
+- The default set of check covers Red Hat’s submission requirements.
 - Each check is independent and execution order is not guaranteed. 
 
 ### Basic Usage with Docker
@@ -55,7 +58,7 @@ will be provided when this functionality will be added.
    ```
    docker run -v $(pwd):/charts --rm quay.io/redhat-certification/chart-verifier verify /charts/<chart>
    ``` 
-1. To get a list of option for the verify request:
+1. To get a list of options for the verify request:
    ```
    docker run -it --rm quay.io/redhat-certification/chart-verifier verify help
    ```
@@ -93,11 +96,11 @@ will be provided when this functionality will be added.
    ```
 1. Provide chart override values:   
    ```
-   chart-verifier verify -S default.port=8080 images-are-certified,helm-lint
+   chart-verifier verify -S default.port=8080
    ```
 1. Provide chart override values in a file:  
    ```
-   chart-verifier verify -F overrides.yaml images-are-certified,helm-lint
+   chart-verifier verify -F overrides.yaml
    ```
    
 ### Notes on usage
@@ -108,15 +111,17 @@ the options available. These options are similar to those use by ```helm lint```
 
 Note, for ``helm lint`` the check will pass if there are no error messages - warning and info messages do not cause the check to fail.
 
+Running a subset of checks using the -e and -x flags are provided as a convenience when working to get all checks to pass 
+for a chart. A report generated for the submission process must include all checks. 
 
 ## Submitting a Chart for inclusion in Red Hat Helm Repository and Certification
 
-### Repository
+Information on the submission process is defined in the [Red Hat Helm Repository](https://github.com/openshift-helm-charts/repo)
+Please read this information before submitting a chart.
 
-[Red Hat Helm Repository](https://github.com/openshift-helm-charts) is accessible on GitHub:
-- [Red Hat Helm Repository](https://github.com/openshift-helm-charts/repo)
+## Submission notes: 
 
-### Available Options
+A verifier report is an integral part of the submission process. There are 3 options for submitting a chart:
 
 | Option | Description
 |---|---
@@ -124,63 +129,7 @@ Note, for ``helm lint`` the check will pass if there are no error messages - war
 | **2. Helm Chart extracted Tarball** | Submit your Chart with its extracted tarball (`chart-verifier`'s report optional).
 | **3. chart-verifier Report only** | When your Chart will not be hosted in the Red Hat Helm repository, you can just submit the generated report from `chart-verifier` tool.
 
-
-### Preparing to submit 
-
-1. Complete partner registration for each chart. This result in a file being created in the Red Hat helm repository
-   ```
-   chart/partners/<partner-name>/<chart-name>/OWNERS
-   ```
-1. Clone Red Hat Helm Repository:
-    ```
-    git clone https://github.com/openshift-helm-charts/repo.git
-   ```
-1. Create a fork of the Red Hat Helm Repository, and create a [git triangle workflow](https://gist.github.com/anjohnson/8994c95ab2a06f7d2339).
-1. Add a directory for the version of the chart you will be submitting
-   ```
-   chart/partners/<partner-name>/<chart-name>/<chart-version>
-   ```
-   Note: the name and version in the chart must match this directory structure.
-
-### Option1: Submitting Helm Chart as a Tarball
-
-1. Add the tarball to the directory created above:
-   ```chart/partners/<partner-name>/<chart-name>/<chart-version>/<Chart>.tgz```
-   Note: the chart name and version in the chart must match the directory structure.
-2. If you are also including a chart verifier report, from the same directory run:
-   ```
-   docker run -v $(pwd):/charts --rm quay.io/redhat-certification/chart-verifier verify /charts/<chart>.tgz 2>report.yaml
-   ```
-   This creates the report: ```chart/partners/<partner-name>/<chart-name>/<chart-version>/report.yaml```
-   You should check its content to ensure all checks have passed.
-
-### Option2: Submitting Helm Chart extracted Tarball
-
-1. Add the extracted tarball to the directory in created above:
-   ```chart/partners/<partner-name>/<chart-name>/<chart-version>/src/<extracted-tarball>```
-   Note: the chart name and version in the chart must match the directory structure.
-1. If you are also including a chart verifier report, from the same directory run:
-   ```
-   docker run -v $(pwd):/charts --rm quay.io/redhat-certification/chart-verifier verify /charts/src 2>report.yaml
-   ```
-   This creates the report:
-   ```chart/partners/<partner-name>/<chart-name>/<chart-version>/report.yaml```
-   You should check its content to ensure all checks have passed.
-
-### Option3: Submitting with only `chart-verifier` report
-
-1. From the directory created above generate a verifier report for the chart:  
-   ```
-   docker run -it --rm quay.io/redhat-certification/chart-verifier verify <chart-uri> 2>report.yaml
-   ```
-   This creates the report:
-   ```chart/partners/<partner-name>/<chart-name>/<chart-version>/report.yaml```
-   You should check its content to ensure all checks have passed.
-   
-### All options
-1. Create a branch, commit the files created and push to your personal fork.
-1. To test the branch against the submission checks, create a pull request to merge your branch into your personal fork.
-1. When ready to submit create a pull request to merge the branch into the Red Hat repository.
+With the options which do not require and report, a report will be generated as part of the submission process. 
 
 
 ### Notes
@@ -203,6 +152,77 @@ will fail if the sha values do not match.
 If a successful run of the report requires additional values to be specified the report must be submitted with the chart.
 This is because the submission process does not have access to the values and the report generated would inevitably include
 failures.
+
+## Trouble shooting check failures
+
+### `is-helm-v3`
+
+Requires the "api-version" attribute of chart.yaml to be set to "v2". Any other value will result in check fail.
+
+### `has-readme`
+
+Requires a "README.md" file to exist in the root directory of the chart. Any other spelling or 
+capitialisation of letters with result if check failure.
+
+### `contains-test`
+
+Requires at least one file to exists in the ```templates/test``` subdirectory of the chart. If no such file 
+exists this check will fail. Note other checks will require the directory to contain a valid test.
+
+### `has-minkubeversion`
+
+Requires the "kubeVersion" attribute of chart.yaml to be set to a value. If the attribute is not set the check 
+will fail. The vaue set is not checked.
+
+### `contains-values`
+
+Requires a ```values.schema``` file to be present in the chart. If the file is not present the check will fail.
+
+### `contains-values-schema`
+
+Requires a ```values.schema.json``` file to be present in the chart. If the file is not present the check will fail. 
+
+### `not-contains-crds`
+
+Requires no crds to be defined in the chart. A crd is a file with an extension of `.yaml`, `.yml` or `.json`
+in a `crd` subdirectory of the chart and should be removed if present.
+
+### `not-contain-csi-objects`
+
+Requires no csi objects in a chart. A csi object is a file in the template subdirectory, with an extension of `.yaml`,
+and containing an `kind` attribute set to `CSIDriver`. If such a file exists it should be removed.
+
+### `helm-lint`
+
+Requires a `helm lint` of the chart to not result in any `ERROR` messages. If a ERROR does occur the helm lint messages 
+will be output. Run `helm lint` on your chart for additional information. If the chart requires specification of additional 
+attributes to pass `helm lint` use one of the `chart-set` flags of the verifier tool for this check to pass. If additional 
+attributes are required a verifier report mut be included in the chart submission.
+
+### `images-are-certified`
+
+Requires any images referenced in a chart to be Red Hat Certified. 
+- The list of image references is found by running `helm template` and if this fails the error output from `helm template` 
+  will be output. Run `helm template` on your chart for additional information. If the chart requires specification of additional
+  attributes to pass `helm template` use one of the `chart-set` flags of the verifier tool for this check to pass. If additional
+  attributes are required a verifier report mut be included in the chart submission. 
+- Each image reference is then parsed to determine the registry, repository and tag or digest value.
+    - registry is the string before the first "/" in the image reference but only if it includes a "." character.
+    - the repository is what remains in the image reference, after the registry is removed and before ":" or "@sha" 
+    - tag is what is set after the ":" character
+    - digest is what is set after the "@" character in "@sha"
+- If a registry is not found the pyxis swagger api is used to find the component and from it, extract the registry
+    - "https://catalog.redhat.com/api/containers/v1/repositories?filter=repository==<repository>"
+    - if the component is not found the check will fail.
+- The registry and repository are the used to find images:
+    - "https://catalog.redhat.com/api/containers/v1/repositories/registry/<registry>/repository/<repository>/images"
+    - if the image specified a sha value it is compared with the `parsed_data.docker_image_digest` attribute. If a 
+      match is not found the check fails.
+    - if the image specified a tag value it is compared with the `repositories.tags.name` attributes. If a match is 
+      not found the check fails.
+- If the check fails use the point fo failure to determine how to address the issue. 
+    
+
 
 ## Suggestions
 

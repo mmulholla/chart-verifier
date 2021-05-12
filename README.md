@@ -211,9 +211,9 @@ Requires any images referenced in a chart to be Red Hat Certified.
     - the repository is what remains in the image reference, after the registry is removed and before ":" or "@sha" 
     - tag is what is set after the ":" character
     - digest is what is set after the "@" character in "@sha"
-- If a registry is not found the pyxis swagger api is used to find the component and from it, extract the registry
+- If a registry is not found the pyxis swagger api is used to find the repository and from it, extract the registry
     - `https://catalog.redhat.com/api/containers/v1/repositories?filter=repository==<repository>`
-    - if the component is not found the check will fail.
+    - if the repository is not found the check will fail.
 - The registry and repository are the used to find images:
     - `https://catalog.redhat.com/api/containers/v1/repositories/registry/<registry>/repository/<repository>/images`
     - if the image specified a sha value it is compared with the `parsed_data.docker_image_digest` attribute. If a 

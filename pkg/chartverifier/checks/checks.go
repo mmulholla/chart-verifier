@@ -239,7 +239,7 @@ func ImagesAreCertified(opts *CheckOptions) (Result, error) {
 	images, err := getImageReferences(opts.URI, opts.Values)
 
 	if err != nil {
-		r.SetResult(false, fmt.Sprintf("%s : Failed to get images, error running helm template : %v", ImageCertifyFailed, err))
+		r.SetResult(false, fmt.Sprintf("%s : Failed to get images, error running helm template : %s", ImageCertifyFailed, err.Error()))
 	} else if len(images) == 0 {
 		r.SetResult(true, NoImagesToCertify)
 	} else {
@@ -253,7 +253,7 @@ func ImagesAreCertified(opts *CheckOptions) (Result, error) {
 			}
 
 			if err != nil {
-				r.AddResult(false, fmt.Sprintf("%s : %s : %v", ImageNotCertified, image, err))
+				r.AddResult(false, fmt.Sprintf("%s : %s : %s", ImageNotCertified, image, err.Error()))
 			} else if len(imageRef.Registries) == 0 {
 				r.AddResult(false, fmt.Sprintf("%s : %s", ImageNotCertified, image))
 			} else {

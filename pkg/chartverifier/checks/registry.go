@@ -17,6 +17,7 @@
 package checks
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
 	helmcli "helm.sh/helm/v3/pkg/cli"
 )
@@ -45,9 +46,10 @@ func (r *Result) SetResult(outcome bool, reason string) Result {
 func (r *Result) AddResult(outcome bool, reason string) Result {
 	r.Ok = r.Ok && outcome
 	if len(r.Reason) > 0 {
-		r.Reason += "\n"
+		r.Reason = fmt.Sprintf("%s, %s", r.Reason, reason)
+	} else {
+		r.Reason = fmt.Sprintf("%s", reason)
 	}
-	r.Reason += reason
 	return *r
 }
 

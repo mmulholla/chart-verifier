@@ -1,9 +1,10 @@
 import re
 import argparse
-import os
+import json
 import requests
+import semver
 
-version_file = "cmd/version.go"
+version_file = "cmd/release/release_info.json"
 
 def check_if_version_file_is_modified(api_url):
     # api_url https://api.github.com/repos/<organization-name>/<repository-name>/pulls/<pr_number>
@@ -31,15 +32,6 @@ def check_if_version_file_is_modified(api_url):
 
     return False
 
-def get_version_from_file():
-    version_go = open(version_file, "r")
-    for line in version_go:
-        if "var Version =" in line:
-            name,version = line.split('=',1)
-            version = ''.join(version.split())
-            version = version.strip('\"')
-            return version
-
 
 
 def main():
@@ -49,11 +41,16 @@ def main():
     parser.add_argument("-u", "--version", dest="version", type=str, required=False,
                         help="Version to compare")
     args = parser.parse_args()
-    if not args.api_url or check_if_version_file_is_modified(args.api_url):
-        new_version = get_version_from_file()
-        if not args.version:
-            print(f"::set-output name=version_in_PR::{new_version}")
-        else if new_version > args.version:
-            print("::set-output name=version_in_PR::true")
+    if args.api_url and check_if_version_file_is_modified(args.api_url):
+        ## should be on PR branch
+        version_info = json.loads(version_file)
+        new_version = version_info["version"]
+        print(f"::set-output name=PR_version::{new_version}")
+        print(f"::set-output name=PR_version_info::{version_info}")
+    elif args.version:
+        # should be on main branch
+        version_info = json.loads(version_file)
+        if semver.compare(args.version,version_info["version"]) > 0 :
+            print("::set-output name=updated::true")
 
 

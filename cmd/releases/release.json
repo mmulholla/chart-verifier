@@ -1,0 +1,19 @@
+{
+    "releases" : [
+        {
+            "version": "1.2.2",
+            "docker-image":  "quay.io/redhat-certification/chart-verifier",
+            "release-info": [
+                "Recognize kube version 1.21 as openshift 4.8 (#156)",
+                "update helm to 3.6.2 (#175)"
+            ]
+        },
+        {
+            "version": "1.2.1",
+            "docker-image":  "quay.io/redhat-certification/chart-verifier",
+            "release-info": [
+                "Update for security vulnerability."
+            ]
+        }
+    ]
+}

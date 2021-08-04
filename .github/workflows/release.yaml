@@ -79,7 +79,7 @@ jobs:
               id: check-version_updated
               if: ${{ steps.check_version_in_PR.outputs.PR_version != ''}}
               run: |
-                # check if version file was changed
+                ls "ve1/bin"
                 ve1/bin/version-checker --version=${{ steps.check_version_in_PR.outputs.PR_version }}
 
             - name: Build and Test Image

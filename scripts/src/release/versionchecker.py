@@ -24,7 +24,6 @@ def check_if_version_file_is_modified(api_url):
         page_size = len(files)
         page_number += 1
 
-
         for f in files:
             filename = f["filename"]
             if pattern_versionfile.match(filename):
@@ -43,6 +42,10 @@ def make_relase_body(version, image_name, release_info):
 
 
 def main():
+    cwd = os.getcwd()
+    # Print the current working directory
+    print(f"Current working directory: {cwd}")
+
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--api-url", dest="api_url", type=str, required=False,
                         help="API URL for the pull request")

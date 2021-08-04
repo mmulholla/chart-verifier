@@ -5,14 +5,14 @@ import requests
 import semver
 import os
 
-version_file = "./cmd/release/release_info.json"
+version_file = "cmd/release/release_info.json"
 
 def check_if_version_file_is_modified(api_url):
     # api_url https://api.github.com/repos/<organization-name>/<repository-name>/pulls/<pr_number>
 
     files_api_url = f'{api_url}/files'
     headers = {'Accept': 'application/vnd.github.v3+json'}
-    pattern_versionfile = re.compile(version_file)
+    pattern_versionfile = re.compile(r"chart-verifier/"+version_file)
     page_number = 1
     max_page_size,page_size = 100,100
 
@@ -29,6 +29,8 @@ def check_if_version_file_is_modified(api_url):
             filename = f["filename"]
             if pattern_versionfile.match(filename):
                 return True
+            else:
+                print(f"No match file : {filename}")
 
     return False
 

@@ -79,7 +79,8 @@ jobs:
               id: check-version_updated
               if: ${{ steps.check_version_in_PR.outputs.PR_version != ''}}
               run: |
-                ls "ve1/bin"
+                pwd
+                ls
                 ve1/bin/version-checker --version=${{ steps.check_version_in_PR.outputs.PR_version }}
 
             - name: Build and Test Image

@@ -3,6 +3,7 @@ import argparse
 import json
 import requests
 import semver
+import os
 
 version_file = "cmd/release/release_info.json"
 
@@ -45,6 +46,7 @@ def main():
     cwd = os.getcwd()
     # Print the current working directory
     print(f"Current working directory: {cwd}")
+    print(os.listdir())
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--api-url", dest="api_url", type=str, required=False,

@@ -12,7 +12,7 @@ def check_if_version_file_is_modified(api_url):
 
     files_api_url = f'{api_url}/files'
     headers = {'Accept': 'application/vnd.github.v3+json'}
-    pattern_versionfile = re.compile(r"chart-verifier/"+version_file)
+    pattern_versionfile = re.compile(r"cmd/release/release_info.json")
     page_number = 1
     max_page_size,page_size = 100,100
 

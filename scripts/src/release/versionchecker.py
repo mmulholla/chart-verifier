@@ -53,8 +53,8 @@ def main():
     args = parser.parse_args()
     if args.api_url and check_if_version_file_is_modified(args.api_url):
         ## should be on PR branch
-        file = os.open(version_file,os.O_RDONLY)
-        version_info = json.loads(file)
+        file = open(version_file,)
+        version_info = json.load(file)
         print(f'[INFO] Release found in PR files : {version_info["version"]}.')
         print(f'::set-output name=PR_version::{version_info["version"]}')
         print(f'::set-output name=PR_release_image::{version_info["quay-image"]}')

@@ -68,6 +68,9 @@ jobs:
               run: |
                 # check if version file is include in PR
                 pwd
+                ls -s
+                cd scripts
+                pwd
                 ls -l
                 ve1/bin/version-checker --api-url=${{ github.event.pull_request._links.self.href }}
 
@@ -84,6 +87,9 @@ jobs:
                 # check if version file was changed
                 pwd
                 ls -s
+                cd scripts
+                pwd
+                ls -l
                 ve1/bin/version-checker --version=${{ steps.check_version_in_PR.outputs.PR_version }}
 
             - name: Build and Test Image

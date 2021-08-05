@@ -51,14 +51,14 @@ jobs:
                     exit 1
                   fi
 
-            - name: Set up Python 3.x Part 1
+            - name: Set up Python 3.x on PR branch Part 1
               uses: actions/setup-python@v2
               with:
                 python-version: '3.9'
 
-            - name: Set up Python 3.x Part 2
+            - name: Set up Python 3.x on PR branch Part 2
               run: |
-                # set up python requirements and scripts
+                # set up python requirements and scripts on pr branch
                 python3 -m venv ve1
                 cd scripts && ../ve1/bin/pip3 install -r requirements.txt && cd ..
                 cd scripts && ../ve1/bin/python3 setup.py install && cd ..
@@ -67,13 +67,7 @@ jobs:
               id: check_version_in_PR
               run: |
                 # check if version file is include in PR
-                pwd
-                ls -s
-                cd scripts
-                pwd
-                ls -l
-                cd ..
-                ve1/bin/version-checker --api-url=${{ github.event.pull_request._links.self.href }}
+               ve1/bin/version-checker --api-url=${{ github.event.pull_request._links.self.href }}
 
             - name: Checkout main
               if: ${{ steps.check_version_in_PR.outputs.PR_version != ''}}
@@ -81,14 +75,16 @@ jobs:
               with:
                 ref: main
 
-            - name: Set up Python 3.x Part 1
+            - name: Set up Python 3.x on main branch Part 1
+              if: ${{ steps.check_version_in_PR.outputs.PR_version != ''}}
               uses: actions/setup-python@v2
               with:
                 python-version: '3.9'
 
-            - name: Set up Python 3.x Part 2
+            - name: Set up Python 3.x on main branch Part 2
+              if: ${{ steps.check_version_in_PR.outputs.PR_version != ''}}
               run: |
-                # set up python requirements and scripts
+                # set up python requirements and scripts on main branch
                 python3 -m venv ve1
                 cd scripts && ../ve1/bin/pip3 install -r requirements.txt && cd ..
                 cd scripts && ../ve1/bin/python3 setup.py install && cd ..

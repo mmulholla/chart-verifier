@@ -58,7 +58,7 @@ def test_image(image_id,chart,verifier_version):
     report = yaml.load(out, Loader=Loader)
     report_path = "banddreport.yaml"
 
-    if verifier_version != report["metadata"]["tool"]["verifier-version"]:
+    if verifier_version and verifier_version != report["metadata"]["tool"]["verifier-version"]:
         print(f'[ERROR] Chart verifier report version {report["metadata"]["tool"]["verifier-version"]} does not match  expected version: {verifier_version}')
         return False
 
@@ -107,5 +107,7 @@ def main():
 
         os.environ["VERIFIER_IMAGE"] = image_id
 
-        if test_image(image_id,chart,args.verifier_version):
-            print("::set-output name=result::success")
+        if not test_image(image_id,chart,args.verifier_version):
+            sys.exit(1)
+    else:
+        sys.exit(1)

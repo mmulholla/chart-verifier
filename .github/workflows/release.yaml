@@ -95,6 +95,9 @@ jobs:
               run: |
                 # check if version file was changed
                 ve1/bin/version-checker --version=${{ steps.check_version_in_PR.outputs.PR_version }}
+                  -
+            - name: Checkout code
+              uses: actions/checkout@v2
 
             - name: Build and Test Image
               id: build_and_test

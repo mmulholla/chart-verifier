@@ -19,7 +19,7 @@ def verify_user(username):
             print(f"[ERROR] {username} not auhtorized")
     return False
 
-def check_for_restricted_file(api_url)
+def check_for_restricted_file(api_url):
     files_api_url = f'{api_url}/files'
     headers = {'Accept': 'application/vnd.github.v3+json'}
     pattern_owners = re.compile(r"/OWNERS")

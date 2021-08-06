@@ -54,10 +54,10 @@ def main():
     args = parser.parse_args()
 
     if check_for_restricted_file(args.api_url):
-        if verify_user():
-            print(f"[INFO] {username} is authorized to modify all files in the PR")
+        if verify_user(args.username):
+            print(f"[INFO] {args.username} is authorized to modify all files in the PR")
         else:
-            print(f"[INFO] {username} is not authorized to modify all files in the PR")
+            print(f"[INFO] {args.username} is not authorized to modify all files in the PR")
             sys.exit(1)
     else:
         print(f"[INFO] no restricted files found in the PR")

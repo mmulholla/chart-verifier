@@ -51,8 +51,6 @@ def main():
                         help="API URL for the pull request")
     parser.add_argument("-u", "--user", dest="username", type=str, required=False,
                         help="check if the user can run tests")
-
-
     args = parser.parse_args()
 
     if check_for_restricted_file(args.api_url):

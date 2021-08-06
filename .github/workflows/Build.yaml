@@ -64,12 +64,6 @@ jobs:
                 cd scripts && ../ve1/bin/pip3 install -r requirements.txt && cd ..
                 cd scripts && ../ve1/bin/python3 setup.py install && cd ..
 
-            - name: Check for restricted files and user permissiom
-              id: check_authorization
-              run: |
-                # check for a restricted file and if foun check use has permissiom
-                ve1/bin/check-user --api-url=${{ github.event.pull_request._links.self.href }} --user=${{ github.event.pull_request.user.login }}}}
-
             - name: Check if only release file in PR
               id: check_version_in_PR
               run: |
@@ -101,6 +95,12 @@ jobs:
                 python3 -m venv ve1
                 cd scripts && ../ve1/bin/pip3 install -r requirements.txt && cd ..
                 cd scripts && ../ve1/bin/python3 setup.py install && cd ..
+
+            - name: Check for restricted files and user permissiom
+              id: check_authorization
+              run: |
+                # check for a restricted file and, if found, check user has permissiom
+                ve1/bin/check-user --api-url=${{ github.event.pull_request._links.self.href }} --user=${{ github.event.pull_request.user.login }}}}
 
             - name: Check if version updated
               id: check-version_updated

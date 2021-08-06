@@ -22,9 +22,9 @@ def verify_user(username):
 def check_for_restricted_file(api_url):
     files_api_url = f'{api_url}/files'
     headers = {'Accept': 'application/vnd.github.v3+json'}
-    pattern_owners = re.compile(r"/OWNERS")
+    pattern_owners = re.compile(r"OWNERS")
     pattern_versionfile = re.compile(r"cmd/release/release_info.json")
-    pattern_thisfile = re.compile(r"scripts/sec/owners/checkuser.py")
+    pattern_thisfile = re.compile(r"scripts/src/owners/checkuser.py")
     page_number = 1
     max_page_size,page_size = 100,100
 
@@ -38,13 +38,10 @@ def check_for_restricted_file(api_url):
 
         for f in files:
            filename = f["filename"]
-           if pattern_versionfile.match(filename):
-             return True
-           elif pattern_owners.match(filename):
-             return True
-           elif pattern_thisfile.match(filename):
-             return True
-
+           if pattern_versionfile.match(filename) or pattern_owners.match(filename) or pattern_thisfile.match(filename):
+               print(f"[INFO] restricted file found: {filename}")
+               return True
+ 
     return False
 
 
@@ -64,3 +61,5 @@ def main():
         else:
             print(f"[INFO] {username} is not authorized to modify all files in the PR")
             sys.exit(1)
+    else:
+        print(f"[INFO] no restricted files found in the PR")

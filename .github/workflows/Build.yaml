@@ -1,4 +1,4 @@
-name: Build Test and Release
+name: Build, Test and Release
 
 on:
     pull_request:
@@ -63,45 +63,44 @@ jobs:
                 cd scripts && ../ve1/bin/pip3 install -r requirements.txt && cd ..
                 cd scripts && ../ve1/bin/python3 setup.py install && cd ..
 
-            - name: Check if version included
+            - name: Check if only release file in PR
               id: check_version_in_PR
               run: |
-                # check if version file is include in PR
-                ve1/bin/version-checker --api-url=${{ github.event.pull_request._links.self.href }}
+                # check if release file only is included in PR
+                ve1/bin/release-checker --api-url=${{ github.event.pull_request._links.self.href }}
 
             - name: Build and Test Image
               id: build_and_test
-              if: ${{ steps.check_version_in_PR.outputs.PR_version != ''}}
               run: |
-                # build and test image
+                # build and test a docker image
                 ve1/bin/build-and-test --image-name=${{steps.check_version_in_PR.outputs.PR_release_image}} --sha-value=${GITHUB_SHA} --verifier-version=${{steps.check_version_in_PR.outputs.PR_version}}
 
             - name: Checkout main
-              if: ${{ steps.build_and_test.outputs.result == 'success' }}
+              if: ${{ steps.check_version_in_PR.outputs.PR_includes_release == 'true' }}
               uses: actions/checkout@v2
               with:
                 ref: main
 
             - name: Set up Python 3.x on main branch Part 1
-              if: ${{ steps.build_and_test.outputs.result == 'success' }}
+              if: ${{ steps.check_version_in_PR.outputs.PR_includes_release == 'true' }}
               uses: actions/setup-python@v2
               with:
                 python-version: '3.9'
 
             - name: Set up Python 3.x on main branch Part 2
-              if: ${{ steps.build_and_test.outputs.result == 'success' }}
+              if: ${{ steps.check_version_in_PR.outputs.PR_includes_release == 'true' }}
               run: |
                 # set up python requirements and scripts on main branch
                 python3 -m venv ve1
                 cd scripts && ../ve1/bin/pip3 install -r requirements.txt && cd ..
                 cd scripts && ../ve1/bin/python3 setup.py install && cd ..
 
-            - name: Check if version updated
+            - name: Check if version updated and user is authorized
               id: check-version_updated
-              if: ${{ steps.build_and_test.outputs.result == 'success' }}
+              if: ${{ steps.check_version_in_PR.outputs.PR_includes_release == 'true' }}
               run: |
-                # check if version file was changed
-                ve1/bin/version-checker --version=${{ steps.check_version_in_PR.outputs.PR_version }}
+                # check if version file was changed and user is authorized
+                ve1/bin/release-checker --version=${{ steps.check_version_in_PR.outputs.PR_version }} --user=${{ github.event.pull_request.user.login }}
 
             - name: Approve PR
               id: approve_pr

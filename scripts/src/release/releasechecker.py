@@ -7,7 +7,23 @@ import os
 
 version_file = "cmd/release/release_info.json"
 
-def check_if_version_file_is_modified(api_url):
+def verify_user(username):
+    print(f"[INFO] Verify user. {username}")
+    owners_path = "OWNERS"
+    if not os.path.exists(owners_path):
+        print(f"[ERROR] {owners_path} file does not exist.")
+    else:
+        data = open(owners_path).read()
+        out = yaml.load(data, Loader=Loader)
+        if username in out["approvers"]:
+            print(f"[INFO] {username} authorized")
+            return True
+        else:
+            print(f"[ERROR] {username} cannot publish releases")
+    return False
+
+
+def check_if_only_version_file_is_modified(api_url):
     # api_url https://api.github.com/repos/<organization-name>/<repository-name>/pulls/<pr_number>
 
     files_api_url = f'{api_url}/files'
@@ -17,6 +33,7 @@ def check_if_version_file_is_modified(api_url):
     max_page_size,page_size = 100,100
 
 
+    version_file_found = False
     while (page_size == max_page_size):
 
         files_api_query = f'{files_api_url}?per_page={page_size}&page={page_number}'
@@ -25,12 +42,15 @@ def check_if_version_file_is_modified(api_url):
         page_size = len(files)
         page_number += 1
 
+
         for f in files:
             filename = f["filename"]
             if pattern_versionfile.match(filename):
-                return True
+                version_file_found = True
+            else:
+                return False
 
-    return False
+    return version_file_found
 
 def make_release_body(version, image_name, release_info):
     body = f"Chart verifier version {version} <br><br>Docker Image:<br>- {image_name}:{version}<br><br>"
@@ -48,8 +68,11 @@ def main():
                         help="API URL for the pull request")
     parser.add_argument("-v", "--version", dest="version", type=str, required=False,
                         help="Version to compare")
+    parser.add_argument("-u", "--user", dest="username", type=str, required=False,
+                        help="check if the user can run tests")
+
     args = parser.parse_args()
-    if args.api_url and check_if_version_file_is_modified(args.api_url):
+    if args.api_url and check_if_only_version_file_is_modified(args.api_url):
         ## should be on PR branch
         file = open(version_file,)
         version_info = json.load(file)
@@ -57,18 +80,25 @@ def main():
         print(f'::set-output name=PR_version::{version_info["version"]}')
         print(f'::set-output name=PR_release_image::{version_info["quay-image"]}')
         print(f'::set-output name=PR_release_info::{version_info["release-info"]}')
+        print(f'::set-output name=PR_includes_release::true')
         make_release_body(version_info["version"],version_info["quay-image"],version_info["release-info"])
         file.close()
-    elif args.version:
-        # should be on main branch
+    else:
         file = open(version_file,)
         version_info = json.load(file)
-        if semver.compare(args.version,version_info["version"]) > 0 :
-            print(f'[INFO] Release {args.version} found in PR files is newer than: {version_info["version"]}.')
-            print("::set-output name=updated::true")
+        if args.version:
+            # should be on main branch
+            if semver.compare(args.version,version_info["version"]) > 0 :
+                print(f'[INFO] Release {args.version} found in PR files is newer than: {version_info["version"]}.')
+                if args.username and verify_user(args.username):
+                    print("::set-output name=updated::true")
+                else:
+                    print(f"[Error] User is not set or is not authorized.")
+            else:
+                print(f'[INFO] Release found in PR files is not new  : {version_info["version"]}.')
         else:
-            print(f'[INFO] Release found in PR files is not new  : {version_info["version"]}.')
-    else:
-        print("[INFO] No new release found in PR files.")
+            print(f'::set-output name=PR_version::{version_info["version"]}')
+            print(f'::set-output name=PR_release_image::{version_info["quay-image"]}')
+            print("[INFO] No new release found in PR files.")
 
 

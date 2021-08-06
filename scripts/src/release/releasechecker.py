@@ -7,22 +7,6 @@ import os
 
 version_file = "cmd/release/release_info.json"
 
-def verify_user(username):
-    print(f"[INFO] Verify user. {username}")
-    owners_path = "OWNERS"
-    if not os.path.exists(owners_path):
-        print(f"[ERROR] {owners_path} file does not exist.")
-    else:
-        data = open(owners_path).read()
-        out = yaml.load(data, Loader=Loader)
-        if username in out["approvers"]:
-            print(f"[INFO] {username} authorized")
-            return True
-        else:
-            print(f"[ERROR] {username} cannot publish releases")
-    return False
-
-
 def check_if_only_version_file_is_modified(api_url):
     # api_url https://api.github.com/repos/<organization-name>/<repository-name>/pulls/<pr_number>
 
@@ -68,8 +52,6 @@ def main():
                         help="API URL for the pull request")
     parser.add_argument("-v", "--version", dest="version", type=str, required=False,
                         help="Version to compare")
-    parser.add_argument("-u", "--user", dest="username", type=str, required=False,
-                        help="check if the user can run tests")
 
     args = parser.parse_args()
     if args.api_url and check_if_only_version_file_is_modified(args.api_url):
@@ -90,10 +72,7 @@ def main():
             # should be on main branch
             if semver.compare(args.version,version_info["version"]) > 0 :
                 print(f'[INFO] Release {args.version} found in PR files is newer than: {version_info["version"]}.')
-                if args.username and verify_user(args.username):
-                    print("::set-output name=updated::true")
-                else:
-                    print(f"[Error] User is not set or is not authorized.")
+                print("::set-output name=updated::true")
             else:
                 print(f'[INFO] Release found in PR files is not new  : {version_info["version"]}.')
         else:

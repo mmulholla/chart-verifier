@@ -38,13 +38,10 @@ def check_for_restricted_file(api_url):
 
         for f in files:
            filename = f["filename"]
-           if pattern_versionfile.match(filename):
-             return True
-           elif pattern_owners.match(filename):
-             return True
-           elif pattern_thisfile.match(filename):
-             return True
-
+           if pattern_versionfile.match(filename) or pattern_owners.match(filename) or pattern_thisfile.match(filename):
+               print(f"[INFO] restricted file found: {filename}")
+               return True
+ 
     return False
 
 

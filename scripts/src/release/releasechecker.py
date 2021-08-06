@@ -26,7 +26,6 @@ def check_if_only_version_file_is_modified(api_url):
         page_size = len(files)
         page_number += 1
 
-
         for f in files:
             filename = f["filename"]
             if pattern_versionfile.match(filename):
@@ -78,6 +77,6 @@ def main():
         else:
             print(f'::set-output name=PR_version::{version_info["version"]}')
             print(f'::set-output name=PR_release_image::{version_info["quay-image"]}')
-            print("[INFO] No new release found in PR files.")
+            print("[INFO] PR contains non-release files.")
 
 

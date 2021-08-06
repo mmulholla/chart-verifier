@@ -51,15 +51,13 @@ def main():
                         help="API URL for the pull request")
     parser.add_argument("-u", "--user", dest="username", type=str, required=False,
                         help="check if the user can run tests")
-
-
     args = parser.parse_args()
 
     if check_for_restricted_file(args.api_url):
-        if verify_user():
-            print(f"[INFO] {username} is authorized to modify all files in the PR")
+        if verify_user(args.username):
+            print(f"[INFO] {args.username} is authorized to modify all files in the PR")
         else:
-            print(f"[INFO] {username} is not authorized to modify all files in the PR")
+            print(f"[INFO] {args.username} is not authorized to modify all files in the PR")
             sys.exit(1)
     else:
         print(f"[INFO] no restricted files found in the PR")

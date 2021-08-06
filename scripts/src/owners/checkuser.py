@@ -3,6 +3,11 @@ import argparse
 import requests
 import os
 import sys
+import yaml
+try:
+    from yaml import CLoader as Loader, CDumper as Dumper
+except ImportError:
+    from yaml import Loader, Dumper
 
 def verify_user(username):
     print(f"[INFO] Verify user. {username}")

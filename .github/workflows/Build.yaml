@@ -74,6 +74,20 @@ jobs:
               with:
                   python-version: '3.9'
 
+            - name: Set up Python scripts on main branch
+              run: |
+                # set up python requirements and scripts on main branch
+                echo $(pwd)
+                python3 -m venv ve1
+                cd scripts && ../ve1/bin/pip3 install -r requirements.txt && cd ..
+                cd scripts && ../ve1/bin/python3 setup.py install && cd ..
+
+            - name: Check if only release file in PR
+              id: check_version_in_PR
+              run: |
+                # check if release file only is included in PR
+                 ve1/bin/release-checker --api-url=${{ github.event.pull_request._links.self.href }}
+
             - name: Set up Python scripts on PR branch
               working-directory: ./pr-branch
               run: |
@@ -88,14 +102,6 @@ jobs:
               run: |
                   # build and test a docker image
                   ve1/bin/build-and-test --image-name=${{steps.check_version_in_PR.outputs.PR_release_image}} --sha-value=${GITHUB_SHA} --verifier-version=${{steps.check_version_in_PR.outputs.PR_version}}
-
-            - name: Set up Python scripts on main branch
-              run: |
-                # set up python requirements and scripts on main branch
-                echo $(pwd)
-                python3 -m venv ve1
-                cd scripts && ../ve1/bin/pip3 install -r requirements.txt && cd ..
-                cd scripts && ../ve1/bin/python3 setup.py install && cd ..
 
             - name: Check if only release file in PR
               id: check_version_in_PR

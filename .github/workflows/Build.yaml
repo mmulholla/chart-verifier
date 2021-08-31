@@ -21,13 +21,13 @@ jobs:
                   repository: ${{ github.event.pull_request.head.repo.full_name }}
                   path: "pr-branch"
 
+            - name: Switch to pr branch
+              run: cd pr-branch
+
             - name: Setup Go
               uses: actions/setup-go@v2
               with:
-                go-version: '1.15.8'
-
-            - name: Switch to pr branch
-              run: cd pr-branch
+                  go-version: '1.15.8'
 
             - name: Check go mod status
               run: |
@@ -149,4 +149,4 @@ jobs:
                 QUAY_AUTH_TOKEN: ${{ secrets.QUAY_AUTH_TOKEN }}
               run: |
                 # Check and link latest image to latest release if needed
-                ve1/bin/link-images --verifier-version=${{ steps.check_version_in_PR.outputs.PR_version }} --link-tag="latest"
+                ve1/bin/link-images --verifier-version=${{ steps.check_version_in_PR.outputs.PR_version }} --link-tag="test"

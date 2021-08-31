@@ -2,6 +2,6 @@
     "version": "1.0.1",
     "quay-image":  "quay.io/redhat-certification/chart-verifier",
     "release-info": [
-        "Test for 101."
+        "Test Update for 101."
     ]
 }

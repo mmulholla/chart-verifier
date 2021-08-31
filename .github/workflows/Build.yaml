@@ -21,9 +21,6 @@ jobs:
                   repository: ${{ github.event.pull_request.head.repo.full_name }}
                   path: "pr-branch"
 
-            - name: Switch to pr branch
-              run: cd pr-branch
-
             - name: Setup Go
               uses: actions/setup-go@v2
               with:
@@ -31,6 +28,8 @@ jobs:
 
             - name: Check go mod status
               run: |
+                echo $(pwd)
+                cd pr-branch
                 make gomod_tidy
                 if [[ ! -z $(git status -s) ]]
                 then
@@ -42,6 +41,7 @@ jobs:
 
             - name: Build Binary
               run: |
+                echo $(pwd)
                 make bin
 
             - name: Check format

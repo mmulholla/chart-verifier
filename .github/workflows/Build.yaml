@@ -103,12 +103,6 @@ jobs:
                   # build and test a docker image
                   ve1/bin/build-and-test --image-name=${{steps.check_version_in_PR.outputs.PR_release_image}} --sha-value=${GITHUB_SHA} --verifier-version=${{steps.check_version_in_PR.outputs.PR_version}}
 
-            - name: Check if only release file in PR
-              id: check_version_in_PR
-              run: |
-                # check if release file only is included in PR
-                ve1/bin/release-checker --api-url=${{ github.event.pull_request._links.self.href }}
-
             - name: Check for restricted files and user permissiom
               id: check_authorization
               run: |

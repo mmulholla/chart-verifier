@@ -30,6 +30,7 @@ jobs:
               run: |
                 echo $(pwd)
                 cd pr-branch
+                echo $(pwd)
                 make gomod_tidy
                 if [[ ! -z $(git status -s) ]]
                 then
@@ -46,6 +47,7 @@ jobs:
 
             - name: Check format
               run: |
+                echo $(pwd)
                 make gofmt
                 if [[ ! -z $(git status -s) ]]
                 then

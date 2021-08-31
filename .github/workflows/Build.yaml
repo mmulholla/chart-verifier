@@ -27,9 +27,8 @@ jobs:
                   go-version: '1.15.8'
 
             - name: Check go mod status
+              working-directory: ./pr-branch
               run: |
-                echo $(pwd)
-                cd pr-branch
                 echo $(pwd)
                 make gomod_tidy
                 if [[ ! -z $(git status -s) ]]
@@ -41,6 +40,7 @@ jobs:
                 fi
 
             - name: Build Binary
+              working-directory: ./pr-branch
               run: |
                 echo $(pwd)
                 make bin

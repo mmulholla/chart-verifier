@@ -14,12 +14,12 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v2
 
-            -  name: Checkout
-               uses: actions/checkout@v2
-               with:
-                  ref: ${{ github.event.pull_request.head.ref }}
-                  repository: ${{ github.event.pull_request.head.repo.full_name }}
-                  path: "pr-branch"
+            - name: Checkout
+              uses: actions/checkout@v2
+              with:
+                ref: ${{ github.event.pull_request.head.ref }}
+                repository: ${{ github.event.pull_request.head.repo.full_name }}
+                path: "pr-branch"
 
             - name: Setup Go
               uses: actions/setup-go@v2
@@ -93,8 +93,8 @@ jobs:
               working-directory: ./pr-branch
               id: build_and_test
               run: |
-                  # build and test a docker image
-                  ve1/bin/build-and-test --image-name=${{steps.check_version_in_PR.outputs.PR_release_image}} --sha-value=${GITHUB_SHA} --verifier-version=${{steps.check_version_in_PR.outputs.PR_version}}
+                # build and test a docker image
+                ve1/bin/build-and-test --image-name=${{steps.check_version_in_PR.outputs.PR_release_image}} --sha-value=${GITHUB_SHA} --verifier-version=${{steps.check_version_in_PR.outputs.PR_version}}
 
             - name: Set up Python scripts on main branch
               run: |

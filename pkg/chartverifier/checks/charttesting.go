@@ -87,6 +87,8 @@ func buildChartTestingConfiguration(opts *CheckOptions) config.Configuration {
 // phases.
 func ChartTesting(opts *CheckOptions) (Result, error) {
 
+	tool.LogInfo("Start Chart Testing")
+
 	cfg := buildChartTestingConfiguration(opts)
 	procExec := tool.NewProcessExecutor(cfg.Debug)
 	extraArgs := strings.Fields(cfg.HelmExtraArgs)
@@ -95,17 +97,20 @@ func ChartTesting(opts *CheckOptions) (Result, error) {
 
 	_, path, err := LoadChartFromURI(opts.URI)
 	if err != nil {
+		tool.LogError("End Chart Testing with LoadChartFromURI error")
 		return NewResult(false, err.Error()), nil
 	}
 
 	chrt, err := chart.NewChart(path)
 	if err != nil {
+		tool.LogError("End Chart Testing with NewChart error")
 		return NewResult(false, err.Error()), nil
 	}
 
 	if cfg.Upgrade {
 		oldChrt, err := getChartPreviousVersion(chrt)
 		if err != nil {
+			tool.LogError("End Chart Testing with getChartPreviousVersion error")
 			return NewResult(
 					false,
 					fmt.Sprintf("skipping upgrade test of '%s' because no previous chart is available", chrt.Yaml().Name)),
@@ -113,29 +118,35 @@ func ChartTesting(opts *CheckOptions) (Result, error) {
 		}
 		breakingChangeAllowed, err := util.BreakingChangeAllowed(oldChrt.Yaml().Version, chrt.Yaml().Version)
 		if !breakingChangeAllowed {
+			tool.LogError("End Chart Testing with BreakingChangeAllowed not allowed")
 			return NewResult(
 					false,
 					fmt.Sprintf("Skipping upgrade test of '%s' because breaking changes are not allowed for chart", chrt)),
 				nil
 		} else if err != nil {
+			tool.LogError("End Chart Testing with BreakingChangeAllowed error")
 			return NewResult(false, err.Error()), nil
 		}
 		result := upgradeAndTestChart(cfg, oldChrt, chrt, helm, kubectl)
 
 		if result.Error != nil {
+			tool.LogError("End Chart Testing with upgradeAndTestChart error")
 			return NewResult(false, result.Error.Error()), nil
 		}
 	} else {
 		result := installAndTestChartRelease(cfg, chrt, helm, kubectl, opts.Values)
 		if result.Error != nil {
+			tool.LogError("End Chart Testing with installAndTestChartRelease error")
 			return NewResult(false, result.Error.Error()), nil
 		}
 	}
 
 	if versionError := setOCVersion(opts.AnnotationHolder, getVersion); versionError != nil {
+		tool.LogWarning("End Chart Testing with version error")
 		return NewResult(false, versionError.Error()), nil
 	}
 
+	tool.LogInfo("Start Chart Testing")
 	return NewResult(true, ChartTestingSuccess), nil
 }
 
@@ -242,6 +253,7 @@ func upgradeAndTestChart(
 			result.Error = err
 			break
 		}
+
 	}
 
 	return result

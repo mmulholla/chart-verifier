@@ -46,6 +46,7 @@ func (h Helm) InstallWithValues(chart string, valuesFile string, namespace strin
 		values = []interface{}{"--values", valuesFile}
 	}
 
+	LogInfo(fmt.Sprintf("Execute helm install. namespace: %s, release: %s chart: %s", namespace, release, chart))
 	helmArgs := []interface{}{"install", release, chart, "--namespace", namespace, "--wait"}
 	helmArgs = append(helmArgs, values...)
 	helmArgs = append(helmArgs, toInterfaceArray(h.extraArgs)...)
@@ -55,11 +56,16 @@ func (h Helm) InstallWithValues(chart string, valuesFile string, namespace strin
 }
 
 func (h Helm) Test(namespace string, release string) error {
+	LogInfo(fmt.Sprintf("Execute helm test. namespace: %s, release: %s", namespace, release))
 	_, err := h.RunProcessAndCaptureOutput("helm", "test", release, "--namespace", namespace, h.extraArgs)
 	return err
 }
 
-func (h Helm) DeleteRelease(namespace string, release string) {
-	_, _ = h.RunProcessAndCaptureOutput("helm", "uninstall", release, "--namespace", namespace, h.extraArgs)
-
+func (h Helm) DeleteRelease(namespace string, release string) error {
+	LogInfo(fmt.Sprintf("Execute helm uninstall. namespace: %s, release: %s", namespace, release))
+	_, err := h.RunProcessAndCaptureOutput("helm", "uninstall", release, "--namespace", namespace, h.extraArgs)
+	if err != nil {
+		LogError(fmt.Sprintf("Error from helm uninstall : %v", err))
+	}
+	return err
 }

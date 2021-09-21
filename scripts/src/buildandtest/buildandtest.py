@@ -70,6 +70,10 @@ def test_image(image_id,chart,verifier_version):
     report = yaml.load(out, Loader=Loader)
     report_path = "banddreport.yaml"
 
+    print("Logs output")
+    with open('logs.txt', 'r') as f:
+        print(f.read())
+
     if verifier_version and verifier_version != report["metadata"]["tool"]["verifier-version"]:
         print(f'[ERROR] Chart verifier report version {report["metadata"]["tool"]["verifier-version"]} does not match  expected version: {verifier_version}')
         return False

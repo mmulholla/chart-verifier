@@ -38,6 +38,8 @@ func TestInstallWithValues(t *testing.T) {
 		// for this test, none of the arguments matter si
 		err = h.InstallWithValues(chrt, valuesFile, namespace, release)
 
+		DeleteLog()
+
 		// assert
 		require.Error(t, err)
 		require.Equal(t, expectedErrorMessage, err.Error())
@@ -59,6 +61,8 @@ func TestInstallWithValues(t *testing.T) {
 
 		// act
 		err := h.InstallWithValues(chrt, valuesFile, namespace, release)
+
+		DeleteLog()
 
 		// assert
 		require.Error(t, err)

@@ -11,7 +11,7 @@ var (
 	errorLogger   *log.Logger
 )
 
-func init() {
+func setUpLogger() {
 	// If the file doesn't exist, create it or append to the file
 	file, err := os.OpenFile("logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
@@ -27,15 +27,28 @@ func init() {
 
 func LogWarning(message string) {
 	//log.Println(fmt.Sprintf("WARNING: %s", message))
+	if warningLogger == nil {
+		setUpLogger()
+	}
 	warningLogger.Println(message)
 }
 
 func LogInfo(message string) {
 	//log.Println(fmt.Sprintf("INFO: %s", message))
+	if infoLogger == nil {
+		setUpLogger()
+	}
 	infoLogger.Println(message)
 }
 
 func LogError(message string) {
 	//log.Println(fmt.Sprintf("ERROR: %s", message))
+	if errorLogger == nil {
+		setUpLogger()
+	}
 	errorLogger.Println(message)
+}
+
+func DeleteLog() {
+	os.Remove("logs.txt")
 }

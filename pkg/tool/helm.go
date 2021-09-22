@@ -52,12 +52,19 @@ func (h Helm) InstallWithValues(chart string, valuesFile string, namespace strin
 	helmArgs = append(helmArgs, toInterfaceArray(h.extraArgs)...)
 
 	_, err := h.RunProcessAndCaptureOutput("helm", helmArgs...)
+	if err != nil {
+		LogInfo(fmt.Sprintf("Execute helm install. error %v",err))
+	}
+
 	return err
 }
 
 func (h Helm) Test(namespace string, release string) error {
 	LogInfo(fmt.Sprintf("Execute helm test. namespace: %s, release: %s", namespace, release))
 	_, err := h.RunProcessAndCaptureOutput("helm", "test", release, "--namespace", namespace, h.extraArgs)
+	if err != nil {
+		LogInfo(fmt.Sprintf("Execute helm test. error %v",err))
+	}
 	return err
 }
 

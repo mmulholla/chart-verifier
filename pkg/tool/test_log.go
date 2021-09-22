@@ -1,54 +1,57 @@
 package tool
 
 import (
-	"log"
-	"os"
+	"encoding/json"
+	"fmt"
+	"gopkg.in/yaml.v3"
 )
 
-var (
-	warningLogger *log.Logger
-	infoLogger    *log.Logger
-	errorLogger   *log.Logger
-)
+type TestLog struct {
+	Name    string      `json:"name" yaml:"name"`
+	Entries []*LogEntry `json:"log" yaml:"log"`
+}
 
-func setUpLogger() {
-	// If the file doesn't exist, create it or append to the file
-	file, err := os.OpenFile("logs.txt", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	if err != nil {
-		log.Fatal(err)
-	}
+type LogEntry struct {
+	Entry string `json:"Entry" yaml:"Entry"`
+}
 
-	log.SetOutput(file)
+var testlog TestLog
 
-	infoLogger = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
-	warningLogger = log.New(file, "WARNING: ", log.Ldate|log.Ltime|log.Lshortfile)
-	errorLogger = log.New(file, "ERROR: ", log.Ldate|log.Ltime|log.Lshortfile)
+func init() {
+	testlog = TestLog{Name: "Chart Verifier Log"}
 }
 
 func LogWarning(message string) {
-	//log.Println(fmt.Sprintf("WARNING: %s", message))
-	if warningLogger == nil {
-		setUpLogger()
-	}
-	warningLogger.Println(message)
+	warning_log_entry := LogEntry{Entry: fmt.Sprintf("[WARNING] %s", message)}
+	testlog.Entries = append(testlog.Entries, &warning_log_entry)
 }
 
 func LogInfo(message string) {
-	//log.Println(fmt.Sprintf("INFO: %s", message))
-	if infoLogger == nil {
-		setUpLogger()
-	}
-	infoLogger.Println(message)
+	info_log_entry := LogEntry{Entry: fmt.Sprintf("[INFO] %s", message)}
+	testlog.Entries = append(testlog.Entries, &info_log_entry)
 }
 
 func LogError(message string) {
-	//log.Println(fmt.Sprintf("ERROR: %s", message))
-	if errorLogger == nil {
-		setUpLogger()
-	}
-	errorLogger.Println(message)
+	error_log_entry := LogEntry{Entry: fmt.Sprintf("[ERROR} %s", message)}
+	testlog.Entries = append(testlog.Entries, &error_log_entry)
 }
+func GetLogsOutput(log_format string) (string, error) {
 
-func DeleteLog() {
-	os.Remove("logs.txt")
+	if len(testlog.Entries) > 0 {
+		if log_format == "json" {
+			b, err := json.Marshal(&testlog)
+			if err != nil {
+				return "", err
+			}
+			return string(b), nil
+		} else {
+			b, err := yaml.Marshal(&testlog)
+			if err != nil {
+				return "", err
+			}
+			return string(b), nil
+		}
+	}
+	return "", nil
+
 }

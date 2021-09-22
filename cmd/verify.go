@@ -18,6 +18,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/redhat-certification/chart-verifier/pkg/chartverifier/checks"
 	"github.com/redhat-certification/chart-verifier/pkg/chartverifier/profiles"
 
@@ -32,6 +33,7 @@ import (
 	"gopkg.in/yaml.v3"
 
 	"github.com/redhat-certification/chart-verifier/pkg/chartverifier"
+	"github.com/redhat-certification/chart-verifier/pkg/tool"
 )
 
 func init() {
@@ -158,6 +160,12 @@ func NewVerifyCmd(config *viper.Viper) *cobra.Command {
 				}
 
 				cmd.Println(string(b))
+			}
+			logs, err := tool.GetLogsOutput(outputFormatFlag)
+			if len(logs) > 0 {
+				cmd.Println(logs)
+			} else {
+				cmd.Println(fmt.Sprintf("LoggingError: %v", err))
 			}
 			return nil
 		},

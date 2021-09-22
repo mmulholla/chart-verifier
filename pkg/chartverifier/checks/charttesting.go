@@ -124,25 +124,27 @@ func ChartTesting(opts *CheckOptions) (Result, error) {
 					fmt.Sprintf("Skipping upgrade test of '%s' because breaking changes are not allowed for chart", chrt)),
 				nil
 		} else if err != nil {
-			tool.LogError("End Chart Testing with BreakingChangeAllowed error")
+			tool.LogError(fmt.Sprintf("End Chart Testing with BreakingChangeAllowed error: %v", err))
 			return NewResult(false, err.Error()), nil
 		}
 		result := upgradeAndTestChart(cfg, oldChrt, chrt, helm, kubectl)
 
 		if result.Error != nil {
-			tool.LogError("End Chart Testing with upgradeAndTestChart error")
+			tool.LogError(fmt.Sprintf("End Chart Testing with upgradeAndTestChart error: %v", result.Error))
 			return NewResult(false, result.Error.Error()), nil
 		}
 	} else {
 		result := installAndTestChartRelease(cfg, chrt, helm, kubectl, opts.Values)
 		if result.Error != nil {
-			tool.LogError("End Chart Testing with installAndTestChartRelease error")
+			tool.LogError(fmt.Sprintf("End Chart Testing with installAndTestChartRelease error: %v", result.Error))
 			return NewResult(false, result.Error.Error()), nil
 		}
 	}
 
 	if versionError := setOCVersion(opts.AnnotationHolder, getVersion); versionError != nil {
-		tool.LogWarning("End Chart Testing with version error")
+		if versionError != nil {
+			tool.LogWarning(fmt.Sprintf("End Chart Testing with version error: %v", versionError))
+		}
 		return NewResult(false, versionError.Error()), nil
 	}
 

@@ -53,26 +53,25 @@ func (h Helm) InstallWithValues(chart string, valuesFile string, namespace strin
 
 	_, err := h.RunProcessAndCaptureOutput("helm", helmArgs...)
 	if err != nil {
-		LogInfo(fmt.Sprintf("Execute helm install. error %v",err))
+		LogInfo(fmt.Sprintf("Execute helm install. error %v", err))
 	}
 
 	return err
 }
 
 func (h Helm) Test(namespace string, release string) error {
-	LogInfo(fmt.Sprintf("Execute helm test. namespace: %s, release: %s", namespace, release))
+	LogInfo(fmt.Sprintf("Execute helm test. namespace: %s, release: %s, extraArgd: %v", namespace, release, h.extraArgs))
 	_, err := h.RunProcessAndCaptureOutput("helm", "test", release, "--namespace", namespace, h.extraArgs)
 	if err != nil {
-		LogInfo(fmt.Sprintf("Execute helm test. error %v",err))
+		LogInfo(fmt.Sprintf("Execute helm test. error %v", err))
 	}
 	return err
 }
 
-func (h Helm) DeleteRelease(namespace string, release string) error {
+func (h Helm) DeleteRelease(namespace string, release string) {
 	LogInfo(fmt.Sprintf("Execute helm uninstall. namespace: %s, release: %s", namespace, release))
 	_, err := h.RunProcessAndCaptureOutput("helm", "uninstall", release, "--namespace", namespace, h.extraArgs)
 	if err != nil {
 		LogError(fmt.Sprintf("Error from helm uninstall : %v", err))
 	}
-	return err
 }

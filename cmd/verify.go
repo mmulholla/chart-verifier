@@ -151,21 +151,28 @@ func NewVerifyCmd(config *viper.Viper) *cobra.Command {
 					return err
 				}
 
-				cmd.Println(string(b))
+				cmd.Println(fmt.Sprintf("{%s", string(b)))
+
+				logs, err := tool.GetLogsOutput(outputFormatFlag)
+				if len(logs) > 0 {
+					cmd.Println(fmt.Sprintf("%s}", logs))
+				} else {
+					cmd.Println(fmt.Sprintf("{LoggingError: %v}}", err))
+				}
 
 			} else {
 				b, err := yaml.Marshal(result)
 				if err != nil {
 					return err
 				}
-
 				cmd.Println(string(b))
-			}
-			logs, err := tool.GetLogsOutput(outputFormatFlag)
-			if len(logs) > 0 {
-				cmd.Println(logs)
-			} else {
-				cmd.Println(fmt.Sprintf("LoggingError: %v", err))
+
+				logs, err := tool.GetLogsOutput(outputFormatFlag)
+				if len(logs) > 0 {
+					cmd.Println(logs)
+				} else {
+					cmd.Println(fmt.Sprintf("LoggingError: %v", err))
+				}
 			}
 			return nil
 		},

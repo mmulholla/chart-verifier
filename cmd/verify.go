@@ -151,14 +151,7 @@ func NewVerifyCmd(config *viper.Viper) *cobra.Command {
 					return err
 				}
 
-				cmd.Println(fmt.Sprintf("{%s", string(b)))
-
-				logs, err := tool.GetLogsOutput(outputFormatFlag)
-				if len(logs) > 0 {
-					cmd.Println(fmt.Sprintf("%s}", logs))
-				} else {
-					cmd.Println(fmt.Sprintf("{LoggingError: %v}}", err))
-				}
+				cmd.Println(fmt.Sprintf("%s", string(b)))
 
 			} else {
 				b, err := yaml.Marshal(result)

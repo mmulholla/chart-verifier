@@ -4,6 +4,7 @@ go 1.15
 
 require (
 	github.com/Masterminds/semver v1.5.0
+	github.com/Masterminds/sprig v2.22.0+incompatible
 	github.com/google/go-cmp v0.5.2
 	github.com/hashicorp/go-retryablehttp v0.6.8 // indirect
 	github.com/helm/chart-testing/v3 v3.3.1

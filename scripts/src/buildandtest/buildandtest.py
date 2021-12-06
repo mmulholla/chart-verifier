@@ -110,7 +110,8 @@ def main():
 
 
     args = parser.parse_args()
-    image_tag = args.sha_value[:7]
+
+    image_tag = args.sha_value
     image_id = f"{args.image_name}:{image_tag}"
 
     if build_image(image_id):

@@ -146,6 +146,7 @@ jobs:
               with:
                 tag_name: ${{ steps.check_version_in_PR.outputs.PR_version }}
                 body: ${{ steps.check_version_in_PR.outputs.PR_release_body }}
+                files: ${{ steps.check_version_in_PR.outputs.PR_release_asset }}
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

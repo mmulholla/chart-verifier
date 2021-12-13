@@ -209,7 +209,7 @@ jobs:
 
             - name: Check and link latest image in quay
               id: link_image_in_qauy
-              if: ${{ steps.check_version_updated.outputs.updated == 'true' && GITHUB_REPOSITORY == "redhat-certification/chart-verifier" }}
+              if: ${{ steps.check_version_updated.outputs.updated == 'true' && $GITHUB_REPOSITORY == "redhat-certification/chart-verifier" }}
               env:
                 QUAY_AUTH_TOKEN: ${{ secrets.QUAY_AUTH_TOKEN }}
               run: |

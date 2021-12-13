@@ -90,9 +90,9 @@ jobs:
                 ve1/bin/release-checker --api-url=${{ github.event.pull_request._links.self.href }}
 
             - name: Get Date
-                  id: get-date
-                  run: |
-                      echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+              id: get-date
+              run: |
+                  echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
                   shell: bash
 
             - uses: actions/cache@v2

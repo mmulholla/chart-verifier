@@ -209,9 +209,11 @@ jobs:
 
             - name: Check and link latest image in quay
               id: link_image_in_qauy
-              if: ${{ steps.check_version_updated.outputs.updated == 'true' && $GITHUB_REPOSITORY == "redhat-certification/chart-verifier" }}
+              if: ${{ steps.check_version_updated.outputs.updated == 'true' }}
               env:
                 QUAY_AUTH_TOKEN: ${{ secrets.QUAY_AUTH_TOKEN }}
               run: |
                 # Check and link latest image to latest release if needed
-                ve1/bin/link-images --verifier-version=${{ steps.check_version_in_PR.outputs.PR_version }} --link-tag="latest"
+                if [ $GITHUB_REPOSITORY == "redhat-certification/chart-verifier" ]; then
+                    ve1/bin/link-images --verifier-version=${{ steps.check_version_in_PR.outputs.PR_version }} --link-tag="latest"
+                fi

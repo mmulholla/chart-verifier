@@ -142,6 +142,8 @@ jobs:
               id: run_tetst
               run: |
                   # run pytest
+                  echo "run test with docker image tag: ${{ env.VERIFIER_IMAGE_TAG}}"
+                  echo "run test with tarball: ${{ env.VERIFIER_TARBALL_NAME}}"
                   ve1/bin/pytest -v --log-cli-level=WARNING --tb=short
 
             - name: Delete Namespace

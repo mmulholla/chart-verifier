@@ -137,7 +137,7 @@ jobs:
               env:
                   KUBECONFIG: /tmp/ci-kubeconfig
                   VERIFIER_IMAGE_TAG:  ${{ steps.build_image.outputs.verifier-image-tag }}
-                  VERIFIER_TARBALL_NAME : ${{ steps.check_version_in_PR.outputs.PR_tarball_name }}
+                  VERIFIER_TARBALL_NAME : ${{ steps.build_image.outputs.PR_tarball_name }}
               id: run_tetst
               run: |
                   # run pytest
@@ -203,7 +203,7 @@ jobs:
               with:
                 tag_name: ${{ steps.check_version_in_PR.outputs.PR_version }}
                 body: ${{ steps.check_version_in_PR.outputs.PR_release_body }}
-                files: ${{ steps.check_version_in_PR.outputs.PR_tarball_name }}
+                files: ${{ steps.build_image.outputs.PR_tarball_name }}
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

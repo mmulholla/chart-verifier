@@ -48,8 +48,9 @@ def run_verifier(image_type, profile_type, chart_location):
             return "FAIL: environment variable \"VERIFIER_TARBALL_NAME\" not set."
         return run_tarball_image(tarball_name,profile_type,chart_location)
     else:
-        image_tag  =  os.environ.get("VERIFER_IMAGE_TAG")
+        image_tag  =  os.environ.get("VERIFIER_IMAGE_TAG")
         if not image_tag:
+            print("INFO: environment variable \"VERIFIER_IMAGE_TAG\" not set, main assumed.")
             image_tag = "main"
         image_name =  "quay.io/redhat-certification/chart-verifier"
         return run_docker_image(image_name,image_tag,profile_type,chart_location)

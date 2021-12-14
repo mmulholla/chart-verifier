@@ -107,6 +107,7 @@ jobs:
                   # install oc
                   curl -sLO https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-linux.tar.gz
                   tar zxvf openshift-client-linux.tar.gz oc
+                  echo "::set-output name=oc-installed::true"
 
             - name: Build the Image and tarball
               working-directory: ./chart-verifier

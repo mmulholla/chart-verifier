@@ -49,9 +49,6 @@ def run_verifier(image_type, profile_type, chart_location):
         return run_tarball_image(tarball_name,profile_type,chart_location)
     else:
         image_tag  =  os.environ.get("VERIFIER_IMAGE_TAG")
-        if not image_tag:
-            print("INFO: environment variable \"VERIFIER_IMAGE_TAG\" not set, main assumed.")
-            image_tag = "main"
         image_name =  "quay.io/redhat-certification/chart-verifier"
         return run_docker_image(image_name,image_tag,profile_type,chart_location)
 
@@ -60,11 +57,22 @@ def run_docker_image(verifier_image_name,verifier_image_tag,profile_type, chart_
 
     client = docker.from_env()
 
-    try:
-        verifier_image=client.images.pull(verifier_image_name,tag=verifier_image_tag)
-    except docker.errors.APIError as exc:
-        print(f'Error from docker loading image: {verifier_image_name}:{verifier_image_tag}')
-        return f"FAIL: pulling image : docker.errors.APIError: {exc.args}"
+    ## If image tag not set we need to pull the image
+    if not verifier_image_tag:
+        verifier_image_tag = "main"
+        try:
+            verifier_image=client.images.pull(verifier_image_name,tag=verifier_image_tag)
+        except docker.errors.APIError as exc:
+            print(f'Error from docker loading image: {verifier_image_name}:{verifier_image_tag}')
+            return f"FAIL pulling image : docker.errors.APIError: {exc.args}"
+    else:
+        ## Image tag is set so must exist - get the image
+        try:
+            verifier_image = client.images.get(f"{verifier_image_name}:{verifier_image_tag}")
+        except docker.errors.ImageNotFound:
+            return f"FAIL getting image -  not found:  : {verifier_image_name}:{verifier_image_tag}"
+        except docker.errors.APIError as exc:
+            return f"FAIL getting image : {verifier_image_name}:{verifier_image_tag} : docker.errors.APIError: {exc.args}"
 
     os.environ["VERIFIER_IMAGE"] = f"{verifier_image_name}:{verifier_image_tag}"
 

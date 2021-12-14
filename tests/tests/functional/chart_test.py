@@ -1,10 +1,12 @@
 
 from pytest_bdd import scenario, given, when, then, parsers
 import os
+import subprocess
 import sys
 import docker
 import pytest
 import json
+import tarfile
 from deepdiff import DeepDiff
 
 sys.path.append('./scripts/src/')
@@ -19,7 +21,7 @@ except ImportError:
 
 @scenario(
     "features/chart_good.feature",
-    "A chart provider verifies their chart using the chart verifier docker image"
+    "A chart provider verifies their chart using the chart verifier"
 )
 def test_chart_source():
     pass
@@ -36,32 +38,43 @@ def chart_location(location,helm_chart):
 def report_info_location(location,report_info):
     return os.path.join(location,report_info)
 
-@when(parsers.parse("I run the <image> chart-verifier verify command against the chart to generate a report"),target_fixture="run_verifier")
-def run_verifier(image, profile_type, chart_location):
-    print(f"\nrun verifier image: {image}, with profile : {profile_type}, and chart: {chart_location}")
+@when(parsers.parse("I run the <image_type> chart-verifier verify command against the chart to generate a report"),target_fixture="run_verifier")
+def run_verifier(image_type, profile_type, chart_location):
+    print(f"\nrun {image_type} verifier  with profile : {profile_type}, and chart: {chart_location}")
+
+    if image_type == "tarball":
+        tarball_name = os.environ.get("VERIFIER_TARBALL_NAME")
+        if not tarball_name:
+            return "FAIL: environment variable \"VERIFIER_TARBALL_NAME\" not set."
+        return run_tarball_image(tarball_name,profile_type,chart_location)
+    else:
+        image_tag  =  os.environ.get("VERIFIER_IMAGE_TAG")
+        image_name =  "quay.io/redhat-certification/chart-verifier"
+        return run_docker_image(image_name,image_tag,profile_type,chart_location)
+
+
+def run_docker_image(verifier_image_name,verifier_image_tag,profile_type, chart_location):
 
     client = docker.from_env()
-    verifier_image_name = "quay.io/redhat-certification/chart-verifier"
 
-    image_tag = os.environ.get("VERIFIER_IMAGE_TAG")
-    if not image_tag:
-        image_tag = image
-        if not image_tag:
-           image_tag = "latest"
+    ## If image tag not set we need to pull the image
+    if not verifier_image_tag:
+        verifier_image_tag = "main"
         try:
-            verifier_image=client.images.pull(verifier_image_name,tag=image_tag)
+            verifier_image=client.images.pull(verifier_image_name,tag=verifier_image_tag)
         except docker.errors.APIError as exc:
-            print(f'Error from docker loading image: {verifier_image_name}:{image_tag}')
+            print(f'Error from docker loading image: {verifier_image_name}:{verifier_image_tag}')
             return f"FAIL pulling image : docker.errors.APIError: {exc.args}"
     else:
+        ## Image tag is set so must exist - get the image
         try:
-            verifier_image = client.images.get(f"{verifier_image_name}:{image_tag}")
+            verifier_image = client.images.get(f"{verifier_image_name}:{verifier_image_tag}")
         except docker.errors.ImageNotFound:
-            return f"FAIL image not found:  : {verifier_image_name}:{image_tag}"
+            return f"FAIL getting image -  not found:  : {verifier_image_name}:{verifier_image_tag}"
         except docker.errors.APIError as exc:
-            return f"FAIL getting image : {verifier_image_name}:{image_tag} : docker.errors.APIError: {exc.args}"
+            return f"FAIL getting image : {verifier_image_name}:{verifier_image_tag} : docker.errors.APIError: {exc.args}"
 
-    os.environ["VERIFIER_IMAGE"] = f"{verifier_image_name}:{image_tag}"
+    os.environ["VERIFIER_IMAGE"] = f"{verifier_image_name}:{verifier_image_tag}"
 
     docker_command = "verify "
     local_chart = False
@@ -105,11 +118,23 @@ def run_verifier(image, profile_type, chart_location):
 
     return output.decode("utf-8")
 
+def run_tarball_image(tarball_name,profile_type, chart_location):
+    print(f"Run tarball image from {tarball_name}")
+
+    tar = tarfile.open(tarball_name, "r:gz")
+
+    tar.extractall(path="./test_verifier")
+
+    out = subprocess.run(["./test_verifier/chart-verifier","verify","--set",f"profile.vendorType={profile_type}",chart_location],capture_output=True)
+
+    return out.stderr.decode("utf-8")
+
+
 @then("I should see the report-info from the generated report matching the expected report-info")
 def check_report(run_verifier, profile_type, report_info_location):
 
     if run_verifier.startswith("FAIL"):
-        pytest.fail(f'FAIL some tests failed: {run_verifier}')
+        pytest.fail(run_verifier)
 
     report_data = yaml.load(run_verifier, Loader=Loader)
 

@@ -44,6 +44,8 @@ def run_verifier(image_type, profile_type, chart_location):
 
     if image_type == "tarball":
         tarball_name = os.environ.get("VERIFIER_TARBALL_NAME")
+        if not tarball_name:
+            return "FAIL: environment variable \"VERIFIER_TARBALL_NAME\" not set."
         return run_tarball_image(tarball_name,profile_type,chart_location)
     else:
         image_tag  =  os.environ.get("VERIFER_IMAGE_TAG")
@@ -61,7 +63,7 @@ def run_docker_image(verifier_image_name,verifier_image_tag,profile_type, chart_
         verifier_image=client.images.pull(verifier_image_name,tag=verifier_image_tag)
     except docker.errors.APIError as exc:
         print(f'Error from docker loading image: {verifier_image_name}:{verifier_image_tag}')
-        return f"FAIL pulling image : docker.errors.APIError: {exc.args}"
+        return f"FAIL: pulling image : docker.errors.APIError: {exc.args}"
 
     os.environ["VERIFIER_IMAGE"] = f"{verifier_image_name}:{verifier_image_tag}"
 
@@ -123,7 +125,7 @@ def run_tarball_image(tarball_name,profile_type, chart_location):
 def check_report(run_verifier, profile_type, report_info_location):
 
     if run_verifier.startswith("FAIL"):
-        pytest.fail(f'FAIL some tests failed: {run_verifier}')
+        pytest.fail(run_verifier)
 
     report_data = yaml.load(run_verifier, Loader=Loader)
 

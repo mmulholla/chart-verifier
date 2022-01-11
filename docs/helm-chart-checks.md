@@ -214,7 +214,7 @@ By default an error log is written to  file ```./chartverifier/verify-<timestamp
 
   ```
 
-If multiple logs are added to the same directory a maximum of 10 will be kept. The files will be deleted oldest first.
+If multiple logs are added to the same directory, a maximum of 10 will be kept. The files will be deleted oldest first.
 
 Use the ```-E``` flag to suppress error log output. 
 
@@ -245,16 +245,16 @@ By default, `chart-verifier` will assume kubeconfig is under $HOME/.kube, set en
 ## Profiles
 
 A profile defines a set of checks to run and an indication of whether each check is mandatory or optional. Four profiles are currently available:
-- partner
+- partner:
   - Defines the requirements for a partner chart to pass helm chart certfication.
   - All checks are mandatory, that is they must all pass for a partner helm chart to be certified.
-- redhat
+- redhat:
   - Defines the requirements for a red hat internal chart to pass helm chart certfication.
   - All checks are mandatory, that is they must all pass for a Red Hat helm chart to be certified.
-- community
+- community:
   - Defines the requirements for a community chart to pass helm chart certfication.
   - The ```helm-lint``` check is the only mandatory check with all other checks optional.
-- default
+- default:
   - The default is the same as the partner profile and is used if a specific one is not specified.
   - All checks are mandatory.
 

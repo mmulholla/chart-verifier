@@ -130,10 +130,6 @@ jobs:
                   podman build -t quay.io/redhat-certification/chart-verifier:$image_tag .
                   echo "::set-output name=podman_image_tag::$image_tag"
 
-            - name: Setup tmate session
-              if: always()
-              uses: mxschmitt/action-tmate@v3
-
             - name: Login to oc
               working-directory: ./chart-verifier
               env:

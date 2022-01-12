@@ -118,23 +118,27 @@ jobs:
                   ve1/bin/build-and-test --image-name="quay.io/redhat-certification/chart-verifier" --sha-value=$commit_sha --build-only="True"}
 
 
-            - name: Setup tmate session
-              uses: mxschmitt/action-tmate@v3
-
             - name: Build podman Image
               working-directory: ./chart-verifier
               id: build_podman_image
               run: |
                   # build a podman image
+                  sudo apt install qemu-system-x86
                   commit_sha=$(git rev-parse --short HEAD)
                   image_tag="podman-"$commit_sha
                   echo "use image tag $image_tag"
                   podman machine init --disk-size 100
+                  echo "start the machine"
                   podman machine start
+                  echo "pull the image"
                   podman pull docker://quay.io/redhat-certification/chart-verifier:$commit_sha
                   # podman build -t quay.io/redhat-certification/chart-verifier:$image_tag .
 
                   echo "::set-output name=podman_image_tag::$image_tag"
+
+            - name: Setup tmate session
+              if: always()
+              uses: mxschmitt/action-tmate@v3
 
             - name: Login to oc
               working-directory: ./chart-verifier

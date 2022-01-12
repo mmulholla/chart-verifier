@@ -25,7 +25,7 @@ jobs:
               uses: actions/setup-go@v2
               with:
                 go-version: '1.17.2'
-
+                
             - name: Check go mod status
               working-directory: ./chart-verifier
               run: |
@@ -122,7 +122,6 @@ jobs:
               id: build_podman_image
               run: |
                   # build a podman image
-                  which qemu-kvm
                   commit_sha=$(git rev-parse --short HEAD)
                   image_tag="podman-"$commit_sha
                   echo "use image tag $image_tag"

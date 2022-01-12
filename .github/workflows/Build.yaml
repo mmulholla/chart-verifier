@@ -123,17 +123,11 @@ jobs:
               id: build_podman_image
               run: |
                   # build a podman image
-                  sudo apt install qemu-system-x86
+                  # sudo apt install qemu-system-x86
                   commit_sha=$(git rev-parse --short HEAD)
                   image_tag="podman-"$commit_sha
                   echo "use image tag $image_tag"
-                  podman machine init --disk-size 100
-                  echo "start the machine"
-                  podman machine start
-                  echo "pull the image"
-                  podman pull docker://quay.io/redhat-certification/chart-verifier:$commit_sha
-                  # podman build -t quay.io/redhat-certification/chart-verifier:$image_tag .
-
+                  podman build -t quay.io/redhat-certification/chart-verifier:$image_tag .
                   echo "::set-output name=podman_image_tag::$image_tag"
 
             - name: Setup tmate session

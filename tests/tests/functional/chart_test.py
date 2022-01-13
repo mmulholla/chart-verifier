@@ -138,9 +138,9 @@ def run_podman_image(verifier_image_name,verifier_image_tag,profile_type, chart_
         chart_name = os.path.basename(os.path.abspath(chart_location))
         print(f"chart location : {chart_location}")
         print(f"chart directory : {chart_directory}")
-        print(f"chart directory : {chart_name}")
+        print(f"chart name : {chart_name}")
         out = subprocess.run(["podman", "run", "-v", f"{chart_directory}:/charts:z", "-v", f"{kubeconfig}:/kubeconfig", "-e", "KUBECONFIG=/kubeconfig", "--rm",
-                              f"{verifier_image_name}:{verifier_image_tag}", "verify", "--set", f"profile.vendortype={profile_type}", chart_name], capture_output=True)
+                              f"{verifier_image_name}:{verifier_image_tag}", "verify", "--set", f"profile.vendortype={profile_type}", f"/charts/{chart_name}"], capture_output=True)
 
     return out.stderr.decode("utf-8")
 

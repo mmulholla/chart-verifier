@@ -53,8 +53,10 @@ def run_verifier(image_type, profile_type, chart_location):
         return run_docker_image(image_name,image_tag,profile_type,chart_location)
     else:
         image_tag = os.environ.get("PODMAN_IMAGE_TAG")
-        print(f"FAIL: run podman image: {image_tag}")
-
+        if not image_tag:
+            image_tag = "main"
+        image_name =  "quay.io/redhat-certification/chart-verifier"
+        return run_podman_image(image_name,image_tag,profile_type,chart_location)
 
 def run_docker_image(verifier_image_name,verifier_image_tag,profile_type, chart_location):
 
@@ -121,12 +123,34 @@ def run_tarball_image(tarball_name,profile_type, chart_location):
 
     return out.stderr.decode("utf-8")
 
+def run_podman_image(verifier_image_name,verifier_image_tag,profile_type, chart_location):
+
+    print(f"Run podman image - {verifier_image_name}:{verifier_image_tag}")
+    kubeconfig = os.environ.get("KUBECONFIG")
+    if not kubeconfig:
+        return "FAIL: missing KUBECONFIG environment variable"
+
+    if chart_location.startswith('http:/') or chart_location.startswith('https:/'):
+        out = subprocess.run(["podman", "run", "-v", f"{kubeconfig}:/kubeconfig", "-e", "KUBECONFIG=/kubeconfig", "--rm",
+                          f"{verifier_image_name}:{verifier_image_tag}", "verify", "--set", f"profile.vendortype={profile_type}", chart_location], capture_output=True)
+    else:
+        chart_directory = os.path.dirname(os.path.abspath(chart_location))
+        chart_name = os.path.basename(os.path.abspath(chart_location))
+        print(f"chart location : {chart_location}")
+        print(f"chart directory : {chart_directory}")
+        print(f"chart directory : {chart_name}")
+        out = subprocess.run(["podman", "run", "-v", f"{chart_directory}:/charts:z", "-v", f"{kubeconfig}:/kubeconfig", "-e", "KUBECONFIG=/kubeconfig", "--rm",
+                              f"{verifier_image_name}:{verifier_image_tag}", "verify", "--set", f"profile.vendortype={profile_type}", chart_name], capture_output=True)
+
+    return out.stderr.decode("utf-8")
 
 @then("I should see the report-info from the generated report matching the expected report-info")
 def check_report(run_verifier, profile_type, report_info_location):
 
     if run_verifier.startswith("FAIL"):
         pytest.fail(f'FAIL some tests failed: {run_verifier}')
+
+    print(f"Report data:\n{run_verifier}\ndone")
 
     report_data = yaml.load(run_verifier, Loader=Loader)
 

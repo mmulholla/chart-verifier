@@ -22,7 +22,7 @@ For more information see:
 - [Introduction to the submission process.](docs/helm-chart-submission.md)
 - [Troubleshooting check failures.](docs/helm-chart-troubleshooting.md)
 
-For developer specific information, see:
+For developer specific information see:
 
 - [Additional information for developers.](docs/helm-chart-developer.md)
 - [Creating a chart-verifier release.](docs/helm-chart-release.md)

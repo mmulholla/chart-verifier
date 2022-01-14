@@ -15,7 +15,7 @@ The tool provides the following features:
 -   Report generation: Generates a verification report in a YAML format.    
 -   Customizable checks: Defines the checks you wish to execute during the verification process.
 
-For more information see:
+For more information, see:
 
 - [The command line interface and checks performed.](docs/helm-chart-checks.md)
 - [Annotations in the report,  chart-verifier CLI tool, and submitter provided.](docs/helm-chart-annotations.md)

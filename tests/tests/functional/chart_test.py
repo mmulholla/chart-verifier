@@ -98,7 +98,7 @@ def run_docker_image(verifier_image_name,verifier_image_tag,profile_type, chart_
             chart_directory = os.path.dirname(os.path.abspath(chart_location))
             docker_volumes[chart_directory] = {'bind': '/charts/', 'mode': 'rw'}
 
-        output = client.containers.run(verifier_image,docker_command,stdin_open=True,tty=True,stderr=True,volumes=docker_volumes,environment=docker_environment)
+        output = client.containers.run(verifier_image,docker_command,stdin_open=True,tty=True,stdout=True,volumes=docker_volumes,environment=docker_environment)
 
     except docker.errors.ContainerError as exc:
         return f"FAIL: docker.errors.ContainerError: {exc.args}"

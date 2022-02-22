@@ -24,7 +24,7 @@ jobs:
             - name: Set up Python 3.x
               uses: actions/setup-python@v2
               with:
-              python-version: '3.9'
+                  python-version: '3.9'
 
             - name: Set up Python scripts on PR branch
               working-directory: ./chart-verifier
@@ -35,6 +35,7 @@ jobs:
                 cd scripts && ../ve1/bin/python3 setup.py install && cd ..
 
             - name: Build Binary
+              id: build-binary
               working-directory: ./chart-verifier
               run: make bin
 
@@ -43,6 +44,8 @@ jobs:
               working-directory: ./chart-verifier
               run: |
                 # check if release file only is included in PR
+                echo "buid binary outcome: {{ steps.build-binary.outcome }}"
+                echo "buid binary conclusion: {{ steps.build-binary.conclusion }}"
                 ve1/bin/tarfile --release="dev"
 
             - uses: dev-drprasad/delete-tag-and-release@v0.2.0

@@ -156,6 +156,8 @@ jobs:
               id: run_tetst
               run: |
                   # run pytest
+                  echo "buid binary outcome: { { steps.build-binary.outcome } }"
+                  echo "buid binary conclusion: { { steps.build-binary.conclusion } }"
                   ve1/bin/pytest -v --log-cli-level=WARNING --tb=short
 
             - name: Delete Namespace

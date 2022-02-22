@@ -21,6 +21,24 @@ jobs:
                   repository: ${{ github.event.pull_request.head.repo.full_name }}
                   path: "chart-verifier"
 
+            - name: Setup Go
+              uses: actions/setup-go@v2
+              with:
+                  go-version: '1.17.2'
+
+            - name: Check go mod status
+              working-directory: ./chart-verifier
+              run: |
+                # run `make gomod_tidy`
+                make gomod_tidy
+                if [[ ! -z $(git status -s) ]]
+                then
+                    echo "Go mod - state is not clean:"
+                    git status -s
+                    git diff "$GITHUB_SHA"
+                    exit 1
+                fi
+
             - name: Set up Python 3.x
               uses: actions/setup-python@v2
               with:

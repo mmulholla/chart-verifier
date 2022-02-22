@@ -7,7 +7,7 @@ on:
 
 jobs:
     build:
-        name: Build artifacts
+        name: Create dev release and test
         runs-on: ubuntu-latest
 
         steps:

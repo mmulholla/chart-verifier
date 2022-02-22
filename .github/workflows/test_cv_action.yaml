@@ -62,9 +62,9 @@ jobs:
               working-directory: ./chart-verifier
               run: |
                 # check if release file only is included in PR
-                echo "buid binary outcome: {{ steps.build-binary.outcome }}"
-                echo "buid binary conclusion: {{ steps.build-binary.conclusion }}"
-                ve1/bin/tarfile --release="dev"
+                echo "buid binary outcome: ${{ steps.build-binary.outcome }}"
+                echo "buid binary conclusion: ${{ steps.build-binary.conclusion }}"
+                ve1/bin/tar-file --release="dev"
 
             - uses: dev-drprasad/delete-tag-and-release@v0.2.0
               with:

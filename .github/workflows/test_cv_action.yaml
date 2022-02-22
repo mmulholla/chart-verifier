@@ -57,7 +57,7 @@ jobs:
 
             - name: Create the the release
               id: create_release
-              if: {{ always() && steps.create-tarfile.conclusion == "success" }}
+              if: ${{ always() && steps.create-tarfile.conclusion == "success" }}
               uses: softprops/action-gh-release@v1
               with:
                 tag_name: dev

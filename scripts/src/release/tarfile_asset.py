@@ -28,6 +28,6 @@ def main():
 
     args = parser.parse_args()
     tarfile = create(args.release)
-    print(f'[INFO] Verifier tarball created : {asset_file}.')
-    print(f'::set-output name=tarball_full_name::{asset_file}')
+    print(f'[INFO] Verifier tarball created : {tarfile}.')
+    print(f'::set-output name=tarball_full_name::{tarfile}')
 

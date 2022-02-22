@@ -114,6 +114,9 @@ jobs:
               id: build_image
               run: |
                   # build a docker image
+                  echo "buid binary outcome: ${{ steps.install-oc.outcome }}"
+                  echo "buid binary conclusion: ${{ steps.install-oc.conclusion }}"
+                  echo "test outcome ${{ always() && steps.install-oc.conclusion == 'success' }}
                   commit_sha=$(git rev-parse --short HEAD)
                   ve1/bin/build-and-test --image-name="quay.io/redhat-certification/chart-verifier" --sha-value=$commit_sha --build-only="True"}
 
@@ -156,8 +159,6 @@ jobs:
               id: run_tetst
               run: |
                   # run pytest
-                  echo "buid binary outcome: { { steps.build-binary.outcome } }"
-                  echo "buid binary conclusion: { { steps.build-binary.conclusion } }"
                   ve1/bin/pytest -v --log-cli-level=WARNING --tb=short
 
             - name: Delete Namespace

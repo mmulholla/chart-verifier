@@ -80,7 +80,7 @@ jobs:
               with:
                 tag_name: dev
                 body: "Development release created with each merge into the main branch."
-                files: ${{ steps.check_version_in_PR.outputs.tarball_full_name }}
+                files: ${{ steps.create-tarfile.outputs.tarball_full_name }}
               env:
                 GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

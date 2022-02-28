@@ -102,6 +102,7 @@ func (h Helm) Test(namespace, release string) error {
 	utils.LogInfo(fmt.Sprintf("Execute helm test. namespace: %s, release: %s, args: %+v", namespace, release, h.args))
 	client := action.NewReleaseTesting(h.config)
 	client.Namespace = namespace
+	client.Timeout = 5 * time.Minute
 
 	// TODO: support filter and timeout options if required
 	_, err := client.Run(release)

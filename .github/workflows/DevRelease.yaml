@@ -24,7 +24,7 @@ jobs:
               with:
                   python-version: '3.9'
 
-            - name: Set up Python scripts on PR branch
+            - name: Set up Python scripts
               run: |
                 # set up python requirements and scripts on PR branch
                 python3 -m venv ve1
@@ -40,7 +40,7 @@ jobs:
               id: create-tarfile
               run: |
                 # check if release file only is included in PR
-                ve1/bin/tarfile --release="dev"
+                ve1/bin/tar-file --release="dev"
 
             - name: Delete previous release and tag
               if: ${{ steps.create-tarfile.outcome == 'success' }}

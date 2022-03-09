@@ -44,8 +44,6 @@ jobs:
 
             - name: echo outputs
               run: |
-                echo "${steps.run-verifier.outputs.report_file}"
-                cat ${steps.run-verifier.outputs.report_file}
                 echo "${{ steps.run-verifier.outputs.report_file }}"
                 cat ${{ steps.run-verifier.outputs.report_file }}
                 echo "${{ toJSON(steps.run-verifier.outputs) }}"

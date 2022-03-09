@@ -5,7 +5,7 @@ on:
         types: [opened, synchronize, reopened]
         branches: [ main ]
     workflow_dispatch:
-        
+
 jobs:
     verify-chart:
         name: Verify Helm Chart
@@ -44,6 +44,6 @@ jobs:
 
             - name: echo outputs
               run: |
-                echo "${{ steps.run-verifier.outputs.report_filename }}"
-                cat ${{ steps.run-verifier.outputs.report_filename }}
+                echo "steps.run-verifier.outputs.report_filename"
+                cat steps.run-verifier.outputs.report_filename
                 echo "${{ toJSON(steps.run-verifier.outputs) }}"

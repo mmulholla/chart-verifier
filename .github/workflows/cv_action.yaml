@@ -1,0 +1,46 @@
+name: Run CV Action
+
+on:
+    pull_request_target:
+        types: [opened, synchronize, reopened]
+        branches: [ main ]
+jobs:
+    verify-chart:
+        name: Verify Helm Chart
+        runs-on: ubuntu-20.04
+        steps:
+
+            - name: Install oc
+              uses: redhat-actions/openshift-tools-installer@v1
+              with:
+                oc: latest
+
+            - name: prepare server url
+              id: server-url
+              run: |
+                  API_SERVER=$( echo -n ${{ secrets.API_SERVER }} | base64 -d)
+                  echo "::set-output name=API_SERVER::${API_SERVER}"
+
+            - uses: redhat-actions/oc-login@v1
+              with:
+                  openshift_server_url: ${{ steps.server-url.outputs.API_SERVER }}
+                  openshift_token: ${{ secrets.CLUSTER_TOKEN }}
+                  insecure_skip_tls_verify: true
+
+            # Install chart-verifier CLI
+            - uses: redhat-actions/openshift-tools-installer@v1
+              with:
+                  source: github
+                  chart-verifier: latest
+
+            - uses: redhat-actions/chart-verifier@main
+              id: run-verifier
+              with:
+                  chart_uri: https://github.com/redhat-certification/chart-verifier/blob/main/tests/charts/psql-service/0.1.9/psql-service-0.1.9.tgz?raw=true
+                  verify_args: --set profile.vendortype=partner
+                  fail: false
+
+            - name: echo outputs
+              run: |
+                echo "${{ steps.run-verifier.outputs.report_filename }}"
+                cat ${{ steps.run-verifier.outputs.report_filename }}

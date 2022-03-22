@@ -90,7 +90,7 @@ def main():
     if args.api_url:
         version_info = get_version_info()
         asset_file = tarfile_asset.create(version_info["version"])
-        print(f'[INFO] Verifier tarball created : {asset_file}.')
+        print(f'[INFO] Verifier tarball created: {asset_file}.')
         print(f'::set-output name=PR_tarball_name::{asset_file}')
         if check_if_only_version_file_is_modified(args.api_url):
             ## should be on PR branch

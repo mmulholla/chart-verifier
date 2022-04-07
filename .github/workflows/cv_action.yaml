@@ -70,10 +70,15 @@ jobs:
 
             - uses: redhat-actions/chart-verifier@v1.0.0
               with:
-                chart_uri: ./tests/charts/psql-service/0.1.9/psql-service-0.1.9.tgz
+                chart_uri: /home/runner/work/chart-verifier/chart-verifier/tests/charts/psql-service/0.1.8/src
                 verify_args: --set profile.vendortype=partner
                 fail: false
 
+            - uses: redhat-actions/chart-verifier@v1.0.0
+              with:
+                  chart_uri: /home/runner/work/chart-verifier/chart-verifier/tests/charts/psql-service/0.1.9/psql-service-0.1.9.tgz
+                  verify_args: --set profile.vendortype=partner
+                  fail: false
 
             - uses: redhat-actions/chart-verifier@v1.0.0
               with:

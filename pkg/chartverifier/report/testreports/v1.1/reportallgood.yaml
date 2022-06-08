@@ -3,6 +3,7 @@ kind: verify-report
 metadata:
     tool:
         verifier-version: 1.1.0
+        report-digest: uint64:926433716645158795
         profile:
             VendorType: redhat
             version: v1.1

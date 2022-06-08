@@ -18,6 +18,7 @@ package chartverifier
 
 import (
 	"fmt"
+	hashstructure "github.com/mitchellh/hashstructure/v2"
 	"github.com/redhat-certification/chart-verifier/pkg/chartverifier/checks"
 	helmchart "helm.sh/helm/v3/pkg/chart"
 )
@@ -48,6 +49,7 @@ type ReportMetadata struct {
 
 type ToolMetadata struct {
 	Version                    string  `json:"verifier-version" yaml:"verifier-version"`
+	ReportDigest               string  `json:"report-digest" yaml:"report-digest"`
 	Profile                    Profile `json:"profile" yaml:"profile"`
 	ChartUri                   string  `json:"chart-uri" yaml:"chart-uri"`
 	Digests                    Digests `json:"digests" yaml:"digests"`
@@ -100,4 +102,22 @@ func (cr *CheckReport) SetResult(outcome bool, reason string) {
 		cr.Outcome = FailOutcomeType
 	}
 	cr.Reason = reason
+}
+
+func (c *Report) SetReportDigest() {
+
+	var err error
+	c.Metadata.ToolMetadata.ReportDigest, err = c.GetReportDigest()
+	if err != nil {
+		c.Metadata.ToolMetadata.ReportDigest = err.Error()
+	}
+
+}
+
+func (c *Report) GetReportDigest() (string, error) {
+
+	c.Metadata.ToolMetadata.ReportDigest = ""
+
+	hash, err := hashstructure.Hash(c, hashstructure.FormatV2, nil)
+	return fmt.Sprintf("uint64:%d", hash), err
 }

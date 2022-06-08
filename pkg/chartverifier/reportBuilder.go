@@ -148,6 +148,8 @@ func (r *reportBuilder) Build() (*Report, error) {
 		r.SetChartUri(("N/A"))
 	}
 
+	r.Report.SetReportDigest()
+
 	return &r.Report, nil
 }
 

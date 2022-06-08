@@ -1,7 +1,9 @@
 package report
 
 import (
+	"errors"
 	"fmt"
+	"golang.org/x/mod/semver"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -24,6 +26,8 @@ const (
 	CertifiedOCPVersionsAnnotationName   string = "certifiedOpenShiftVersions"
 	TestedOCPVersionAnnotationName       string = "testedOpenShiftVersion"
 	SupportedOCPVersionsAnnotationName   string = "supportedOpenShiftVersions"
+
+	ReportShaVersion string = "v1.8.0"
 )
 
 func All(opts *ReportOptions) (OutputReport, error) {
@@ -33,21 +37,29 @@ func All(opts *ReportOptions) (OutputReport, error) {
 	subReport, err := Annotations(opts)
 	if err == nil {
 		outputReport.AnnotationsReport = subReport.AnnotationsReport
+	} else {
+		return OutputReport{}, err
 	}
 
 	subReport, err = Digests(opts)
 	if err == nil {
 		outputReport.DigestsReport = subReport.DigestsReport
+	} else {
+		return OutputReport{}, err
 	}
 
 	subReport, err = Results(opts)
 	if err == nil {
 		outputReport.ResultsReport = subReport.ResultsReport
+	} else {
+		return OutputReport{}, err
 	}
 
 	subReport, err = Metadata(opts)
 	if err == nil {
 		outputReport.MetadataReport = subReport.MetadataReport
+	} else {
+		return OutputReport{}, err
 	}
 
 	return outputReport, nil
@@ -263,7 +275,30 @@ func readReport(path string) (*chartverifier.Report, error) {
 	loadedReport.report = &chartverifier.Report{}
 	err = yaml.Unmarshal(reportBytes, loadedReport.report)
 	if err != nil {
+		loadedReport = nil
 		return nil, err
+	}
+
+	reportVersion := fmt.Sprintf("v%s", loadedReport.report.Metadata.ToolMetadata.Version)
+
+	if semver.Compare(reportVersion, ReportShaVersion) >= 0 {
+
+		reportDigest := loadedReport.report.Metadata.ToolMetadata.ReportDigest
+
+		if reportDigest == "" {
+			err = errors.New("Report does not contain expected report digest.")
+			loadedReport = nil
+			return nil, err
+		}
+		calculatedDigest, err := loadedReport.report.GetReportDigest()
+		if err != nil {
+			loadedReport = nil
+			return nil, err
+		} else if reportDigest != calculatedDigest {
+			err = errors.New("Digest in report does not match report content, report has been modified.")
+			loadedReport = nil
+			return nil, err
+		}
 	}
 
 	return loadedReport.report, nil

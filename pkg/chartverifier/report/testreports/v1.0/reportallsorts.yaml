@@ -3,6 +3,7 @@ kind: verify-report
 metadata:
     tool:
         verifier-version: 1.1.0
+        report-digest: uint64:10208574382451436972
         profile:
             VendorType: partner
             version: v1.0

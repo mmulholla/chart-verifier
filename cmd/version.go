@@ -30,7 +30,7 @@ func init() {
 		return
 	}
 
-	Version = release.Version
+	Version = "1.8.0"
 	rootCmd.AddCommand(newVersionCmd())
 }
 

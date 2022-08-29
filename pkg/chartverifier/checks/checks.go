@@ -13,6 +13,7 @@ const (
 	ImagesAreCertified         CheckName = "images-are-certified"
 	ChartTesting               CheckName = "chart-testing"
 	RequiredAnnotationsPresent CheckName = "required-annotations-present"
+	MetadataIsValid            CheckName = "metadata-is-valid"
 
 	MandatoryCheckType    CheckType = "Mandatory"
 	OptionalCheckType     CheckType = "Optional"
@@ -30,7 +31,9 @@ var setCheckNames = []CheckName{ChartTesting,
 	IsHelmV3,
 	NotContainCsiObjects,
 	NotContainsCRDs,
-	RequiredAnnotationsPresent}
+	RequiredAnnotationsPresent,
+	MetadataIsValid,
+}
 
 func GetChecks() []CheckName {
 	return setCheckNames

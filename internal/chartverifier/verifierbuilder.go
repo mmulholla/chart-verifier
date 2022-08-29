@@ -48,6 +48,7 @@ func init() {
 	defaultRegistry.Add(apiChecks.ImagesAreCertified, "v1.0", checks.ImagesAreCertified)
 	defaultRegistry.Add(apiChecks.ChartTesting, "v1.0", checks.ChartTesting)
 	defaultRegistry.Add(apiChecks.RequiredAnnotationsPresent, "v1.0", checks.RequiredAnnotationsPresent)
+	defaultRegistry.Add(apiChecks.MetadataIsValid, "v1.0", checks.MetadataIsValid)
 }
 
 func DefaultRegistry() checks.Registry {

@@ -60,6 +60,8 @@ const (
 	MetadataFailure              = "Empty metadata in chart"
 	RequiredAnnotationsSuccess   = "All required annotations present"
 	RequiredAnnotationsFailure   = "Missing required annotations"
+	ChartMetadataSuccess         = "Chart Metadata is valid"
+	ChartMetadataFailure         = "Chart Metadata is not valid"
 )
 
 var (
@@ -225,6 +227,20 @@ func HelmLint(opts *CheckOptions) (Result, error) {
 			reason = reason + m.Error() + "\n"
 		}
 		r.SetResult(false, fmt.Sprintf("%s %s", HelmLintHasFailedPrefix, reason))
+	}
+	return r, nil
+}
+
+func MetadataIsValid(opts *CheckOptions) (Result, error) {
+	c, _, err := LoadChartFromURI(opts.URI)
+	if err != nil {
+		return NewResult(false, err.Error()), err
+	}
+	r := NewResult(true, ChartMetadataSuccess)
+
+	if err := c.Metadata.Validate(); err != nil {
+		r.Ok = false
+		r.SetResult(false, fmt.Sprintf("%s : %v", ChartMetadataSuccess, err))
 	}
 	return r, nil
 }

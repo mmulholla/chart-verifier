@@ -95,12 +95,16 @@ func New(values map[string]interface{}) *Profile {
 			if len(vendorProfiles) > 1 {
 				for _, vendorProfile := range vendorProfiles {
 					if len(profileVersion) > 0 {
+						fmt.Println("Compare Versions 1 : ", vendorProfile.Version, profileVersion)
 						if semver.Compare(semver.MajorMinor(vendorProfile.Version), semver.MajorMinor(profileVersion)) == 0 {
 							profileInUse = vendorProfile
+							fmt.Println("Bingo the same : ", vendorProfile.Version)
 							break
 						}
 					}
+					fmt.Println("Compare Versions 2 : ", vendorProfile.Version, profileInUse.Version)
 					if semver.Compare(semver.MajorMinor(vendorProfile.Version), semver.MajorMinor(profileInUse.Version)) > 0 {
+						fmt.Println("Bingo later version : ", vendorProfile.Version)
 						profileInUse = vendorProfile
 					}
 				}
@@ -131,6 +135,7 @@ func getProfiles() {
 				}
 				profileMap[profileRead.Vendor] = append(profileMap[profileRead.Vendor], profileRead)
 				profileRead.Name = strings.Split(profileFile.Name, ".yaml")[0]
+				fmt.Println("add profile to map :", profileRead.Name)
 			}
 		}
 	}

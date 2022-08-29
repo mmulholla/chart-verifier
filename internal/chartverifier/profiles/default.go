@@ -10,7 +10,7 @@ const (
 	CheckVersion10        = "v1.0"
 	CheckVersion11        = "v1.1"
 	DefaultProfile        = "partner"
-	DefaultProfileVersion = "v1.1"
+	DefaultProfileVersion = "v1.2"
 )
 
 func getDefaultProfile(msg string) *Profile {

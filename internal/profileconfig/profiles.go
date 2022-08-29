@@ -2,6 +2,7 @@ package profileconfig
 
 import (
 	"embed"
+	"fmt"
 	"path/filepath"
 )
 
@@ -25,6 +26,7 @@ func GetProfiles() ([]ProfileInfo, error) {
 	for _, profileFile := range profileFiles {
 		newProfile := ProfileInfo{}
 		newProfile.Name = profileFile.Name()
+		fmt.Println("Found profile : ", newProfile.Name)
 		fileContent, err := content.ReadFile(filepath.Join("profiles", newProfile.Name))
 		if err == nil {
 			newProfile.Data = fileContent

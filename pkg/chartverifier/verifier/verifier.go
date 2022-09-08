@@ -57,13 +57,10 @@ const (
 	RepositoryConfig StringKey = "repository-config"
 	RepositoryCache  StringKey = "repository-cache"
 	Config           StringKey = "config"
-	ChartValues      StringKey = "chart-values"
 	KubeAsGroups     StringKey = "kube-as-group"
 
-	ChartSet       ValuesKey = "chart-set"
-	ChartSetFile   ValuesKey = "chart-set-file"
-	ChartSetString ValuesKey = "chart-set-string"
-	CommandSet     ValuesKey = "set"
+	ChartSet   ValuesKey = "chart-set"
+	CommandSet ValuesKey = "set"
 
 	ProviderDelivery BooleanKey = "provider-delivery"
 	SuppressErrorLog BooleanKey = "suppress-error-log"
@@ -83,13 +80,11 @@ var setStringKeys = [...]StringKey{KubeApiServer,
 	RepositoryConfig,
 	RepositoryCache,
 	Config,
-	ChartValues,
 	KubeAsGroups}
 
 var setValuesKeys = [...]ValuesKey{CommandSet,
-	ChartSet,
-	ChartSetFile,
-	ChartSetString}
+	HelmOptions,
+}
 
 var setBooleanKeys = [...]BooleanKey{ProviderDelivery, SuppressErrorLog}
 
@@ -302,18 +297,6 @@ func (v *Verifier) Run(chart_uri string) (ApiVerifier, error) {
 
 	if valueMap, ok := v.Inputs.Flags.ValuesFlags[ChartSet]; ok {
 		opts.Values = mapToStringSlice(valueMap)
-	}
-
-	if valueMap, ok := v.Inputs.Flags.ValuesFlags[ChartSetFile]; ok {
-		opts.FileValues = mapToStringSlice(valueMap)
-	}
-
-	if valueMap, ok := v.Inputs.Flags.ValuesFlags[ChartSetString]; ok {
-		opts.StringValues = mapToStringSlice(valueMap)
-	}
-
-	if stringValue, ok := v.Inputs.Flags.StringFlags[ChartValues]; ok {
-		opts.ValueFiles = stringValue
 	}
 
 	vals, mergeErr := opts.MergeValues(getter.All(settings))

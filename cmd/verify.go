@@ -166,6 +166,11 @@ func NewVerifyCmd(config *viper.Viper) *cobra.Command {
 				valueMap[strings.ToLower(key)] = val
 			}
 
+			helmValues, mergeErr := opts.MergeValues(getter.All(settings))
+			if mergeErr != nil {
+				return mergeErr
+			}
+
 			verifier := apiverifier.NewVerifier()
 
 			if len(enabledChecks) > 0 {
@@ -179,7 +184,6 @@ func NewVerifyCmd(config *viper.Viper) *cobra.Command {
 				SetBoolean(apiverifier.SuppressErrorLog, suppressErrorLog).
 				SetDuration(apiverifier.Timeout, clientTimeout).
 				SetString(apiverifier.OpenshiftVersion, []string{openshiftVersionFlag}).
-				SetString(apiverifier.ChartValues, opts.ValueFiles).
 				SetString(apiverifier.KubeApiServer, []string{settings.KubeAPIServer}).
 				SetString(apiverifier.KubeAsUser, []string{settings.KubeAsUser}).
 				SetString(apiverifier.KubeCaFile, []string{settings.KubeCaFile}).
@@ -192,9 +196,7 @@ func NewVerifyCmd(config *viper.Viper) *cobra.Command {
 				SetString(apiverifier.RepositoryCache, []string{settings.RepositoryCache}).
 				SetString(apiverifier.KubeAsGroups, settings.KubeAsGroups).
 				SetValues(apiverifier.CommandSet, valueMap).
-				SetValues(apiverifier.ChartSet, convertToMap(opts.Values)).
-				SetValues(apiverifier.ChartSetFile, convertToMap(opts.FileValues)).
-				SetValues(apiverifier.ChartSetString, convertToMap(opts.StringValues)).
+				SetValues(apiverifier.ChartSet, helmValues).
 				Run(args[0])
 
 			if runErr != nil {

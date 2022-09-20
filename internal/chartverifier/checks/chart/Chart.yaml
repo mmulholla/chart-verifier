@@ -5,4 +5,4 @@ icon: https://www.example.com/chart-icon.png
 kubeVersion: '>=1.20.0'
 name: chart
 type: application
-version: 0.1.0-v3.valid
+version: abc-0.1.0-v3.valid

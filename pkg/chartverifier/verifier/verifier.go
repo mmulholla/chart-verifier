@@ -30,10 +30,7 @@ import (
 	"github.com/redhat-certification/chart-verifier/pkg/chartverifier/version"
 
 	"github.com/spf13/viper"
-
-	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/cli/values"
-	"helm.sh/helm/v3/pkg/getter"
+	"helm.sh/helm/v3/pkg/chart"
 )
 
 // to do: move report structiure, logs structure,  and check names to api directory
@@ -45,22 +42,10 @@ const (
 	JsonReport ReportFormat = "json"
 	YamlReport ReportFormat = "yaml"
 
-	KubeApiServer    StringKey = "kube-apiserver"
-	KubeAsUser       StringKey = "kube-as-user"
-	KubeCaFile       StringKey = "kube-ca-file"
-	KubeContext      StringKey = "kube-context"
-	KubeToken        StringKey = "kube-token"
-	KubeConfig       StringKey = "kubeconfig"
-	Namespace        StringKey = "namespace"
 	OpenshiftVersion StringKey = "openshift-version"
-	RegistryConfig   StringKey = "registry-config"
-	RepositoryConfig StringKey = "repository-config"
-	RepositoryCache  StringKey = "repository-cache"
-	Config           StringKey = "config"
-	KubeAsGroups     StringKey = "kube-as-group"
 
-	ChartSet   ValuesKey = "chart-set"
-	CommandSet ValuesKey = "set"
+	HelmSettings ValuesKey = "helm-settings"
+	CommandSet   ValuesKey = "set"
 
 	ProviderDelivery BooleanKey = "provider-delivery"
 	SuppressErrorLog BooleanKey = "suppress-error-log"
@@ -68,23 +53,9 @@ const (
 	Timeout DurationKey = "timeout"
 )
 
-var setStringKeys = [...]StringKey{KubeApiServer,
-	KubeAsUser,
-	KubeCaFile,
-	KubeConfig,
-	KubeContext,
-	KubeToken,
-	Namespace,
-	OpenshiftVersion,
-	RegistryConfig,
-	RepositoryConfig,
-	RepositoryCache,
-	Config,
-	KubeAsGroups}
+var setStringKeys = [...]StringKey{OpenshiftVersion}
 
-var setValuesKeys = [...]ValuesKey{CommandSet,
-	HelmOptions,
-}
+var setValuesKeys = [...]ValuesKey{CommandSet, HelmSettings}
 
 var setBooleanKeys = [...]BooleanKey{ProviderDelivery, SuppressErrorLog}
 
@@ -286,25 +257,9 @@ func (v *Verifier) Run(chart_uri string) (ApiVerifier, error) {
 	runOptions := api.RunOptions{}
 
 	runOptions.ChartUri = chart_uri
-
 	runOptions.ViperConfig = viper.New()
 
-	opts := &values.Options{}
-
-	settings := cli.New()
-
-	setHelmEnv(settings, v.Inputs.Flags.StringFlags)
-
-	if valueMap, ok := v.Inputs.Flags.ValuesFlags[ChartSet]; ok {
-		opts.Values = mapToStringSlice(valueMap)
-	}
-
-	vals, mergeErr := opts.MergeValues(getter.All(settings))
-	if mergeErr != nil {
-		return v, mergeErr
-	}
-
-	runOptions.Values = vals
+	runOptions.Values = v.Inputs.Flags.ValuesFlags[HelmSettings]
 	runOptions.Overrides = v.Inputs.Flags.ValuesFlags[CommandSet]
 
 	for checkName, checkStatus := range v.Inputs.Flags.Checks {
@@ -396,41 +351,4 @@ func (v Verifier) checkInputs() error {
 		err = validateStringKeys(v)
 	}
 	return err
-}
-
-func mapToStringSlice(valuesMap map[string]interface{}) []string {
-	var values []string
-	for name, value := range valuesMap {
-		values = append(values, fmt.Sprintf("%s=%s", name, value))
-	}
-	return values
-}
-
-func setHelmEnv(settings *cli.EnvSettings, stringSettings map[StringKey][]string) {
-	for key, value := range stringSettings {
-		switch key {
-		case KubeApiServer:
-			settings.KubeAPIServer = value[0]
-		case KubeAsUser:
-			settings.KubeAsUser = value[0]
-		case KubeCaFile:
-			settings.KubeCaFile = value[0]
-		case KubeConfig:
-			settings.KubeConfig = value[0]
-		case KubeContext:
-			settings.KubeContext = value[0]
-		case KubeToken:
-			settings.KubeToken = value[0]
-		case Namespace:
-			settings.SetNamespace(value[0])
-		case RegistryConfig:
-			settings.RegistryConfig = value[0]
-		case RepositoryConfig:
-			settings.RepositoryConfig = value[0]
-		case RepositoryCache:
-			settings.RepositoryCache = value[0]
-		case KubeAsGroups:
-			settings.KubeAsGroups = value
-		}
-	}
 }

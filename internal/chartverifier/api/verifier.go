@@ -2,6 +2,8 @@ package api
 
 import (
 	"github.com/spf13/viper"
+	"net/http"
+	"net/url"
 
 	"time"
 
@@ -73,4 +75,8 @@ func Run(options RunOptions) (*apireport.Report, error) {
 
 	return verifyReport, nil
 
+}
+
+func LoadChartFromRemote(url *url.URL) (*chart.Chart, string, error) {
+	return checks.LoadChartFromURI(url.String())
 }

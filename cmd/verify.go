@@ -29,13 +29,12 @@ import (
 
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/cli/values"
-	//"helm.sh/helm/v3/pkg/getter"
+	"helm.sh/helm/v3/pkg/getter"
 
 	"github.com/pkg/errors"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	//"github.com/redhat-certification/chart-verifier/internal/chartverifier"
 )
 
 //func init() {
@@ -184,19 +183,8 @@ func NewVerifyCmd(config *viper.Viper) *cobra.Command {
 				SetBoolean(apiverifier.SuppressErrorLog, suppressErrorLog).
 				SetDuration(apiverifier.Timeout, clientTimeout).
 				SetString(apiverifier.OpenshiftVersion, []string{openshiftVersionFlag}).
-				SetString(apiverifier.KubeApiServer, []string{settings.KubeAPIServer}).
-				SetString(apiverifier.KubeAsUser, []string{settings.KubeAsUser}).
-				SetString(apiverifier.KubeCaFile, []string{settings.KubeCaFile}).
-				SetString(apiverifier.KubeConfig, []string{settings.KubeConfig}).
-				SetString(apiverifier.KubeContext, []string{settings.KubeContext}).
-				SetString(apiverifier.Namespace, []string{settings.Namespace()}).
-				SetString(apiverifier.KubeApiServer, []string{settings.KubeAPIServer}).
-				SetString(apiverifier.RegistryConfig, []string{settings.RegistryConfig}).
-				SetString(apiverifier.RepositoryConfig, []string{settings.RepositoryConfig}).
-				SetString(apiverifier.RepositoryCache, []string{settings.RepositoryCache}).
-				SetString(apiverifier.KubeAsGroups, settings.KubeAsGroups).
 				SetValues(apiverifier.CommandSet, valueMap).
-				SetValues(apiverifier.ChartSet, helmValues).
+				SetValues(apiverifier.HelmSettings, helmValues).
 				Run(args[0])
 
 			if runErr != nil {

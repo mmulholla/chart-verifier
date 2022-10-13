@@ -204,6 +204,9 @@ func (r *ReportSummary) addDigests() {
 	r.DigestsReport = &DigestReport{}
 	r.DigestsReport.ChartDigest = r.options.report.Metadata.ToolMetadata.Digests.Chart
 	r.DigestsReport.PackageDigest = r.options.report.Metadata.ToolMetadata.Digests.Package
+	if len(r.options.report.Metadata.ToolMetadata.Digests.PublicKey) > 0 {
+		r.DigestsReport.PublicKeyDigest = r.options.report.Metadata.ToolMetadata.Digests.PublicKey
+	}
 
 }
 
@@ -295,7 +298,8 @@ func (r *ReportSummary) checkReportDigest() error {
 			return errors.New(fmt.Sprintf("error calculating report digest: %v", err))
 		}
 		if calculatedDigest != digestFromReport {
-			return errors.New("Digest in report did not match report content.")
+			//return errors.New(fmt.Sprintf("Digest in report %s did not match report content %s", digestFromReport, calculatedDigest))
+			return errors.New("digest in report did not match report content")
 		}
 
 	}

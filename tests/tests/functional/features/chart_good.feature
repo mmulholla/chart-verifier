@@ -35,7 +35,7 @@ Feature: Chart  verification
         Then I should see the report-info from the generated report matching the expected report-info
 
         Examples:
-            | type      | location                           | helm_chart               | report_info                | public-key              |
+            | type      | location                           | helm_chart               | report_info                | public_key              |
             | partner   | tests/charts/psql-service/0.1.11/  | psql-service-0.1.11.tgz  | partner-report-info.json   | psql-service-0.1.11.key |
             | redhat    | tests/charts/psql-service/0.1.11/  | psql-service-0.1.11.tgz  | redhat-report-info.json    | psql-service-0.1.11.key |
 

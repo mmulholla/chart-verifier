@@ -21,7 +21,12 @@ except ImportError:
 
 @scenario(
     "features/chart_good.feature",
-    "A chart provider verifies their chart using the chart verifier"
+    "A chart provider verifies their chart using the chart verifier",
+)
+
+@scenario(
+    "features/chart_good.feature",
+    "A chart provider verifies their signed chart using the chart verifier"
 )
 
 def test_chart_source():
@@ -39,7 +44,7 @@ def chart_location(location,helm_chart):
 def report_info_location(location,report_info):
     return os.path.join(location,report_info)
 
-@given(parsers.parse("I will provide a <location> of a <public-key> to verify the signature"),target_fixture="public_key_location")
+@given(parsers.parse("I will provide a <location> of a <public_key> to verify the signature"),target_fixture="public_key_location")
 def public_key_location(location,public_key):
     return os.path.join(location,public_key)
 
@@ -56,7 +61,7 @@ def run_verify(image_type, profile_type, chart_location):
 @when(parsers.parse("I run the chart-verifier verify command against the signed chart to generate a report"),target_fixture="run_verify")
 def run_verify(image_type, profile_type, chart_location,public_key_location):
     print(f"\nrun {image_type} verifier verify  with profile : {profile_type}, and chart: {chart_location}")
-    return run_verifier(image_type, profile_type, chart_location,"verify",f"--pgp=public-key {public_key_location}")
+    return run_verifier(image_type, profile_type, chart_location,"verify",f"--pgp-public-key {public_key_location}")
 
 def run_report(image_type, profile_type, report_location):
     print(f"\nrun {image_type} verifier report  with profile : {profile_type}, and chart: {report_location}")

@@ -255,7 +255,7 @@ func (r *ReportSummary) addResults() {
 			for _, reportCheck := range r.options.report.Results {
 				if strings.Compare(profileCheck.Name, string(reportCheck.Check)) == 0 {
 					found = true
-					if reportCheck.Outcome == report.PassOutcomeType {
+					if reportCheck.Outcome == report.PassOutcomeType || reportCheck.Outcome == report.SkippedOutcomeType {
 						passed++
 					} else {
 						failed++

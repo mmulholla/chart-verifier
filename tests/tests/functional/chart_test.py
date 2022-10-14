@@ -48,7 +48,6 @@ def report_info_location(location,report_info):
 def public_key_location(location,public_key):
     return os.path.join(location,public_key)
 
-
 @given(parsers.parse("I will use the chart verifier <image_type> image"),target_fixture="image_type")
 def image_type(image_type):
     return image_type
@@ -59,10 +58,11 @@ def run_verify(image_type, profile_type, chart_location):
     return run_verifier(image_type, profile_type, chart_location,"verify")
 
 @when(parsers.parse("I run the chart-verifier verify command against the signed chart to generate a report"),target_fixture="run_signed_verify")
-def run_signed_verify(image_type, profile_type, chart_location,public_key_location):
+def run_signed_verify(image_type, profile_type, chart_location, public_key_location):
     print(f"\nrun {image_type} verifier verify  with profile : {profile_type}, and signed chart: {chart_location}")
     return run_verifier(image_type, profile_type, chart_location,"verify",f"--pgp-public-key {public_key_location}")
 
+@then("I should see the report-info from the generated report matching the expected report-info")
 def run_report(image_type, profile_type, report_location):
     print(f"\nrun {image_type} verifier report  with profile : {profile_type}, and chart: {report_location}")
     return run_verifier(image_type, profile_type, report_location,"report")

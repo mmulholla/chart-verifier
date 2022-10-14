@@ -25,7 +25,7 @@ except ImportError:
 )
 
 @scenario(
-    "features/chart_good.feature",
+    "features/chart_signed_good.feature",
     "A chart provider verifies their signed chart using the chart verifier"
 )
 

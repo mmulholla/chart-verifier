@@ -58,8 +58,8 @@ def run_verify(image_type, profile_type, chart_location):
     print(f"\nrun {image_type} verifier verify  with profile : {profile_type}, and chart: {chart_location}")
     return run_verifier(image_type, profile_type, chart_location,"verify")
 
-@when(parsers.parse("I run the chart-verifier verify command against the signed chart to generate a report"),target_fixture="run_verify")
-def run_verify(image_type, profile_type, chart_location,public_key_location):
+@when(parsers.parse("I run the chart-verifier verify command against the signed chart to generate a report"),target_fixture="run_signed_verify")
+def run_signed_verify(image_type, profile_type, chart_location,public_key_location):
     print(f"\nrun {image_type} verifier verify  with profile : {profile_type}, and chart: {chart_location}")
     return run_verifier(image_type, profile_type, chart_location,"verify",f"--pgp-public-key {public_key_location}")
 

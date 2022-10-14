@@ -31,11 +31,11 @@ func TestPGPKeyEncoding(t *testing.T) {
 	require.Equal(t, keyBytes, decodedKey)
 
 	//getShaCmd := fmt.Sprintf("%s | base64 | sha256sum", keyfileName)
-	cmdErr := exec.Command("base64","-i", keyfileName, "-o", "base64key.txt").Run()
+	cmdErr := exec.Command("base64", "-i", keyfileName, "-o", "base64key.txt").Run()
 	require.NoError(t, cmdErr)
-	shaResponse,shaCmdErr := exec.Command("sha256sum", "base64key.txt").Output()
+	shaResponse, shaCmdErr := exec.Command("sha256sum", "base64key.txt").Output()
 	require.NoError(t, shaCmdErr)
-	shaResponseSplit := strings.Split(string(shaResponse)," ")
+	shaResponseSplit := strings.Split(string(shaResponse), " ")
 	require.Equal(t, keyDigest, strings.TrimRight(shaResponseSplit[0], " -\n"))
 	os.Remove("base64key.txt")
 }

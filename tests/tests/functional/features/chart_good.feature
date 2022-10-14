@@ -1,4 +1,4 @@
-Feature: Chart  verification
+Feature: Chart verification
     Partners or redhat or community can verify their charts by running the
     chart verifier against an error free chart.
 

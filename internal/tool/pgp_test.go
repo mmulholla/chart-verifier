@@ -33,9 +33,9 @@ func TestPGPKeyEncoding(t *testing.T) {
 
 	//getShaCmd := fmt.Sprintf("%s | base64 | sha256sum", keyfileName)
 	cmdErr := exec.Command("base64", "-i", keyfileName, "-o", "base64key.txt").Run()
-	require.NoError(t, cmdErr,fmt.Sprintf("Error: %v",cmdErr))
+	require.NoError(t, cmdErr, fmt.Sprintf("Error: %v", cmdErr))
 	shaResponse, shaCmdErr := exec.Command("sha256sum", "base64key.txt").Output()
-	require.NoError(t, shaCmdErr,fmt.Sprintf("Error: %v",shaCmdErr))
+	require.NoError(t, shaCmdErr, fmt.Sprintf("Error: %v", shaCmdErr))
 	shaResponseSplit := strings.Split(string(shaResponse), " ")
 	require.Equal(t, keyDigest, strings.TrimRight(shaResponseSplit[0], " -\n"))
 	os.Remove("base64key.txt")

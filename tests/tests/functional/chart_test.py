@@ -23,13 +23,14 @@ except ImportError:
     "features/chart_good.feature",
     "A chart provider verifies their chart using the chart verifier",
 )
+def test_chart_source():
+    pass
 
 @scenario(
     "features/chart_signed_good.feature",
-    "A chart provider verifies their signed chart using the chart verifier"
+    "A chart provider verifies their signed chart using the chart verifier",
 )
-
-def test_chart_source():
+def test_chart_signed():
     pass
 
 @given(parsers.parse("I would like to use the <type> profile"),target_fixture="profile_type")

@@ -61,19 +61,19 @@ def run_verify(image_type, profile_type, chart_location):
 @when(parsers.parse("I run the chart-verifier verify command against the signed chart to generate a report"),target_fixture="run_signed_verify")
 def run_signed_verify(image_type, profile_type, chart_location, public_key_location):
     print(f"\nrun {image_type} verifier verify  with profile : {profile_type}, and signed chart: {chart_location}")
-    return run_verifier(image_type, profile_type, chart_location,"verify",f"--pgp-public-key {public_key_location}")
+    return run_verifier(image_type, profile_type, chart_location,"verify",public_key_location)
 
 def run_report(image_type, profile_type, report_location):
     print(f"\nrun {image_type} verifier report  with profile : {profile_type}, and chart: {report_location}")
     return run_verifier(image_type, profile_type, report_location,"report")
 
-def run_verifier(image_type, profile_type, target_location, command,flags=None):
+def run_verifier(image_type, profile_type, target_location, command,pgp_key_location=None):
 
     if image_type == "tarball":
         tarball_name = os.environ.get("VERIFIER_TARBALL_NAME")
         print(f"\nRun {command} using tarball: {tarball_name}")
         if command == "verify":
-            return run_verify_tarball_image(tarball_name,profile_type,target_location,flags)
+            return run_verify_tarball_image(tarball_name,profile_type,target_location,pgp_key_location)
         else:
             return run_report_tarball_image(tarball_name,profile_type,target_location)
     elif image_type == "podman":
@@ -83,7 +83,7 @@ def run_verifier(image_type, profile_type, target_location, command,flags=None):
         image_name =  "quay.io/redhat-certification/chart-verifier"
         print(f"\nRun {command} using podman image {image_name}:{image_tag}")
         if command == "verify":
-            return run_verify_podman_image(image_name,image_tag,profile_type,target_location,flags)
+            return run_verify_podman_image(image_name,image_tag,profile_type,target_location,pgp_key_location)
         else:
             return run_report_podman_image(image_name,image_tag,profile_type,target_location)
     else:
@@ -93,11 +93,11 @@ def run_verifier(image_type, profile_type, target_location, command,flags=None):
         image_name =  "quay.io/redhat-certification/chart-verifier"
         print(f"\nRun {command} using docker image {image_name}:{image_tag}")
         if command == "verify":
-            return run_verify_docker_image(image_name,image_tag,profile_type,target_location,flags)
+            return run_verify_docker_image(image_name,image_tag,profile_type,target_location,pgp_key_location)
         else:
             return run_report_docker_image(image_name,image_tag,profile_type,target_location)
 
-def run_verify_docker_image(verifier_image_name,verifier_image_tag,profile_type, chart_location, flags=None):
+def run_verify_docker_image(verifier_image_name,verifier_image_tag,profile_type, chart_location, pgp_key_location=None):
 
     client = docker.from_env()
 
@@ -113,8 +113,14 @@ def run_verify_docker_image(verifier_image_name,verifier_image_tag,profile_type,
 
     docker_command = "verify"
 
-    if flags:
-        docker_command = f'verify {flags}'
+    if pgp_key_location:
+        if pgp_key_location.startswith('http:/') or pgp_key_location.startswith('https:/'):
+            docker_command = f"{docker_command}  --pgp-public-key {pgp_key_location}"
+        else:
+            if os.path.exists(pgp_key_location):
+                docker_command = f"{docker_command} --pgp-public-key /charts/{os.path.basename(pgp_key_location)}"
+            else:
+                return f"FAIL: pgp public key not exist: {os.path.abspath(pgp_key_location)}"
 
     local_chart = False
     if chart_location.startswith('http:/') or chart_location.startswith('https:/'):
@@ -185,15 +191,15 @@ def run_report_docker_image(verifier_image_name,verifier_image_tag,profile_type,
 
     return output.decode("utf-8")
 
-def run_verify_tarball_image(tarball_name,profile_type, chart_location,flags=None):
+def run_verify_tarball_image(tarball_name,profile_type, chart_location,pgp_key_location=None):
     print(f"Run tarball image from {tarball_name}")
 
     tar = tarfile.open(tarball_name, "r:gz")
 
     tar.extractall(path="./test_verifier")
 
-    if flags:
-        out = subprocess.run(["./test_verifier/chart-verifier","verify","--set",f"profile.vendorType={profile_type}",flags,chart_location],capture_output=True)
+    if pgp_key_location:
+        out = subprocess.run(["./test_verifier/chart-verifier","verify","--set",f"profile.vendorType={profile_type}",f"--pgp-public-key {pgp_key_location}",chart_location],capture_output=True)
     else:
         out = subprocess.run(["./test_verifier/chart-verifier","verify","--set",f"profile.vendorType={profile_type}",chart_location],capture_output=True)
 
@@ -210,7 +216,7 @@ def run_report_tarball_image(tarball_name,profile_type, chart_location):
 
     return out.stdout.decode("utf-8")
 
-def run_verify_podman_image(verifier_image_name,verifier_image_tag,profile_type, chart_location,flags=None):
+def run_verify_podman_image(verifier_image_name,verifier_image_tag,profile_type, chart_location,pgp_key_location=None):
 
     print(f"Run podman image - {verifier_image_name}:{verifier_image_tag}")
     kubeconfig = os.environ.get("KUBECONFIG")
@@ -218,15 +224,19 @@ def run_verify_podman_image(verifier_image_name,verifier_image_tag,profile_type,
         return "FAIL: missing KUBECONFIG environment variable"
 
     if chart_location.startswith('http:/') or chart_location.startswith('https:/'):
-        out = subprocess.run(["podman", "run", "-v", f"{kubeconfig}:/kubeconfig", "-e", "KUBECONFIG=/kubeconfig", "--rm",
+        if pgp_location:
+            out = subprocess.run(["podman", "run", "-v", f"{kubeconfig}:/kubeconfig", "-e", "KUBECONFIG=/kubeconfig", "--rm",
+                                  f"{verifier_image_name}:{verifier_image_tag}", "verify", "--set", f"profile.vendortype={profile_type}","--pgp-public-key",public_key_location,chart_location], capture_output=True)
+        else:
+            out = subprocess.run(["podman", "run", "-v", f"{kubeconfig}:/kubeconfig", "-e", "KUBECONFIG=/kubeconfig", "--rm",
                           f"{verifier_image_name}:{verifier_image_tag}", "verify", "--set", f"profile.vendortype={profile_type}", chart_location], capture_output=True)
     else:
         chart_directory = os.path.dirname(os.path.abspath(chart_location))
         chart_name = os.path.basename(os.path.abspath(chart_location))
-        if flags:
+        if pgp_key_location:
+            pgp_key_name = os.path.basename(os.path.abspath(pgp_key_location))
             out = subprocess.run(["podman", "run", "-v", f"{chart_directory}:/charts:z", "-v", f"{kubeconfig}:/kubeconfig", "-e", "KUBECONFIG=/kubeconfig", "--rm",
-                                  f"{verifier_image_name}:{verifier_image_tag}", "verify", "--set", f"profile.vendortype={profile_type}",{flags},f"/charts/{chart_name}"], capture_output=True)
-
+                                  f"{verifier_image_name}:{verifier_image_tag}", "verify", "--set", f"profile.vendortype={profile_type}","--pgp-public-key",f"/charts/{pgp_key_name}",f"/charts/{chart_name}"], capture_output=True)
         else:
             out = subprocess.run(["podman", "run", "-v", f"{chart_directory}:/charts:z", "-v", f"{kubeconfig}:/kubeconfig", "-e", "KUBECONFIG=/kubeconfig", "--rm",
                               f"{verifier_image_name}:{verifier_image_tag}", "verify", "--set", f"profile.vendortype={profile_type}", f"/charts/{chart_name}"], capture_output=True)

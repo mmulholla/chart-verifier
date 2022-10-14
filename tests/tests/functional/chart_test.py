@@ -63,7 +63,6 @@ def run_signed_verify(image_type, profile_type, chart_location, public_key_locat
     print(f"\nrun {image_type} verifier verify  with profile : {profile_type}, and signed chart: {chart_location}")
     return run_verifier(image_type, profile_type, chart_location,"verify",f"--pgp-public-key {public_key_location}")
 
-@then("I should see the report-info from the generated report matching the expected report-info")
 def run_report(image_type, profile_type, report_location):
     print(f"\nrun {image_type} verifier report  with profile : {profile_type}, and chart: {report_location}")
     return run_verifier(image_type, profile_type, report_location,"report")
@@ -245,16 +244,23 @@ def run_report_podman_image(verifier_image_name,verifier_image_tag,profile_type,
 
     return out.stdout.decode("utf-8")
 
+@then("I should see the report-info from the report for the signed chart matching the expected report-info")
+def signed_chart_report(run_signed_verify, profile_type, report_info_location, image_type):
+    check_report(run_signed_verify, profile_type, report_info_location, image_type)
+
 
 @then("I should see the report-info from the generated report matching the expected report-info")
-def check_report(run_verify, profile_type, report_info_location, image_type):
+def chart_report(run_verify, profile_type, report_info_location, image_type):
+    check_report(run_verify, profile_type, report_info_location, image_type)
 
-    if run_verify.startswith("FAIL"):
-        pytest.fail(f'FAIL some tests failed: {run_verify}')
+def check_report(verify_result, profile_type, report_info_location, image_type):
 
-    print(f"Report data:\n{run_verify}\ndone")
+    if verify_result.startswith("FAIL"):
+        pytest.fail(f'FAIL some tests failed: {verify_result}')
 
-    report_data = yaml.load(run_verify, Loader=Loader)
+    print(f"Report data:\n{verify_result}\ndone")
+
+    report_data = yaml.load(verify_result, Loader=Loader)
 
     test_passed = True
 
@@ -276,7 +282,7 @@ def check_report(run_verify, profile_type, report_info_location, image_type):
     print(f'Report path : {report_path}')
 
     with open(report_path, "w") as fd:
-        fd.write(run_verify)
+        fd.write(verify_result)
 
     expected_reports_file = open(report_info_location,)
     expected_reports = json.load(expected_reports_file)

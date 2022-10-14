@@ -15,7 +15,7 @@ Feature: Chart verification
         Given I will use the chart verifier <image_type> image
         Given I will provide a <location> of a <public_key> to verify the signature
         When I run the chart-verifier verify command against the signed chart to generate a report
-        Then I should see the report-info from the generated report matching the expected report-info
+        Then I should see the report-info from the report for the signed chart matching the expected report-info
 
         Examples:
             | type      | location                           | helm_chart               | report_info                | public_key                  |

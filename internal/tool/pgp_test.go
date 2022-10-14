@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestPGPKeyEncoding(t *testing.T) {
+func BestPGPKeyEncoding(t *testing.T) {
 
 	keyfileName := "../../tests/charts/psql-service/0.1.11/psql-service-0.1.11.tgz.key"
 	expectedDigest := "1cc31121e86388fad29e4cc6fc6660f102f43d8c52ce5f7d54e134c3cb94adc2"

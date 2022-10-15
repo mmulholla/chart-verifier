@@ -35,24 +35,24 @@ func TestPGPKeyEncoding(t *testing.T) {
 	cmdErr := exec.Command("base64", "-i", keyfileName, "-o", "./base64key.txt").Run()
 	require.NoError(t, cmdErr, fmt.Sprintf("Error: %v", cmdErr))
 
-	lsOutput,lsErr := exec.Command("ls","-l").Output()
+	lsOutput, lsErr := exec.Command("ls", "-l").Output()
 	if lsErr != nil {
-		fmt.Println("error from ls",lsErr)
+		fmt.Println("error from ls", lsErr)
 	} else {
-		fmt.Println("response from ls",string(lsOutput))
+		fmt.Println("response from ls", string(lsOutput))
 	}
 
-	whichOutput,whichErr := exec.Command("which","sha256sum").Output()
+	whichOutput, whichErr := exec.Command("which", "sha256sum").Output()
 	if whichErr != nil {
-		fmt.Println("error from ls",whichErr)
+		fmt.Println("error from which", whichErr)
 	} else {
-		fmt.Println("response from ls",string(whichOutput))
+		fmt.Println("response from which", string(whichOutput))
 	}
 
 	shaResponse, shaCmdErr := exec.Command("sha256sum", "./base64key.txt").Output()
 	removeErr := os.Remove("base64key.txt")
 	require.NoError(t, removeErr)
-	require.NoError(t, shaCmdErr, fmt.Sprintf("Error: %v : %s", shaCmdErr,string(shaResponse)))
+	require.NoError(t, shaCmdErr, fmt.Sprintf("Error: %v : %s", shaCmdErr, string(shaResponse)))
 	shaResponseSplit := strings.Split(string(shaResponse), " ")
 	require.Equal(t, keyDigest, strings.TrimRight(shaResponseSplit[0], " -\n"))
 }

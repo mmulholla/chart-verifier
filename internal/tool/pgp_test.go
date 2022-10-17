@@ -50,7 +50,7 @@ func TestPGPKeyEncoding(t *testing.T) {
 	//require.Equal(t, keyDigest, strings.TrimRight(shaResponseSplit[0], " -\n"))
 }
 
-func TestDigest1(t *testing.T) {
+func BestDigest1(t *testing.T) {
 	keyfileName := "../../tests/charts/psql-service/0.1.11/psql-service-0.1.11.tgz.key"
 	expectedDigest := "1cc31121e86388fad29e4cc6fc6660f102f43d8c52ce5f7d54e134c3cb94adc2"
 
@@ -80,10 +80,12 @@ func TestDigest2(t *testing.T) {
 	base64KeyFromCmd, _ := base64Cmd.Output()
 
 	base64Key := strings.Trim(string(base64KeyFromCmd), " -\n")
+	t.Logf("Base64 from cmd: -->%s<--", base64Key)
 
 	encodedKey, encodeErr := GetEncodedKey(keyfileName)
 	require.NoError(t, encodeErr)
 	require.True(t, len(encodedKey) > 0)
+	t.Logf("Base64 from go func: -->%s<--", encodedKey)
 
 	require.Equal(t, encodedKey, base64Key)
 

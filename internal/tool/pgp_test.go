@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"subprocess"
 	"testing"
 )
 
@@ -31,6 +32,8 @@ func TestPGPKeyEncoding(t *testing.T) {
 	require.NoError(t, readErr)
 	require.Equal(t, keyBytes, decodedKey)
 
+	baseCmd := "cat {keyfileName} | base64 | sha256sum"
+	cmdErr := 
 	//getShaCmd := fmt.Sprintf("%s | base64 | sha256sum", keyfileName)
 	cmdErr := exec.Command("base64", "-i", keyfileName, "-o", "./base64key.txt").Run()
 	require.NoError(t, cmdErr, fmt.Sprintf("Error: %v", cmdErr))

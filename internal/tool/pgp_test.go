@@ -1,10 +1,10 @@
 package tool
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
-	"os"
 	"os/exec"
 	"strings"
 	"testing"
@@ -54,20 +54,19 @@ func TestDigest(t *testing.T) {
 	keyfileName := "../../tests/charts/psql-service/0.1.11/psql-service-0.1.11.tgz.key"
 	expectedDigest := "1cc31121e86388fad29e4cc6fc6660f102f43d8c52ce5f7d54e134c3cb94adc2"
 
-	cmdErr := exec.Command("base64", "-i", keyfileName, "-o", "./base64key.txt").Run()
-	require.NoError(t, cmdErr, fmt.Sprintf("Error:ls %v", cmdErr))
-	output, lsErr := exec.Command("ls", "-la").Output()
-	require.NoError(t, lsErr, fmt.Sprintf("Error: %v", cmdErr))
+	base64Cmd := exec.Command("base64", "-i", keyfileName)
+	sha256cmd := exec.Command("sha256sum")
 
-	t.Logf("ls -la: %s", string(output))
+	sha256Value := bytes.NewBufferString("")
+	sha256cmd.Stdin, _ = base64Cmd.StdoutPipe()
+	sha256cmd.Stdout = sha256Value
 
-	shaResponse, shaCmdErr := exec.Command("sha256sum", "./base64key.txt").Output()
-	t.Logf("sha256: %s", string(shaResponse))
-	require.NoError(t, shaCmdErr, fmt.Sprintf("Error: %v : %s", shaCmdErr, string(shaResponse)))
-	shaResponseSplit := strings.Split(string(shaResponse), " ")
+	_ = sha256cmd.Start()
+	_ = base64Cmd.Run()
+	_ = sha256cmd.Wait
+
+	t.Logf("sha256: %s", sha256Value.String())
+	shaResponseSplit := strings.Split(sha256Value.String(), " ")
 	require.Equal(t, expectedDigest, strings.TrimRight(shaResponseSplit[0], " -\n"))
-
-	removeErr := os.Remove("./base64key.txt")
-	require.NoError(t, removeErr)
 
 }

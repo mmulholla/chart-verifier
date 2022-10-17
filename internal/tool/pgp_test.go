@@ -4,10 +4,8 @@ import (
 	"fmt"
 	"github.com/stretchr/testify/require"
 	"io/ioutil"
-	"os"
 	"os/exec"
 	"strings"
-	"subprocess"
 	"testing"
 )
 
@@ -32,30 +30,21 @@ func TestPGPKeyEncoding(t *testing.T) {
 	require.NoError(t, readErr)
 	require.Equal(t, keyBytes, decodedKey)
 
-	baseCmd := "cat {keyfileName} | base64 | sha256sum"
-	cmdErr := 
+	baseCmd := fmt.Sprintf("cat %s | base64 | sha256sum", keyfileName)
+	out, baseCmdErr := exec.Command("bash", "-c", baseCmd).Output()
+	require.NoError(t, baseCmdErr)
+
+	shaResponseSplit := strings.Split(string(out), " ")
+	require.Equal(t, expectedDigest, shaResponseSplit[0])
+
 	//getShaCmd := fmt.Sprintf("%s | base64 | sha256sum", keyfileName)
-	cmdErr := exec.Command("base64", "-i", keyfileName, "-o", "./base64key.txt").Run()
-	require.NoError(t, cmdErr, fmt.Sprintf("Error: %v", cmdErr))
+	// cmdErr := exec.Command("base64", "-i", keyfileName, "-o", "./base64key.txt").Run()
+	// require.NoError(t, cmdErr, fmt.Sprintf("Error: %v", cmdErr))
 
-	lsOutput, lsErr := exec.Command("ls", "-l").Output()
-	if lsErr != nil {
-		fmt.Println("error from ls", lsErr)
-	} else {
-		fmt.Println("response from ls", string(lsOutput))
-	}
-
-	whichOutput, whichErr := exec.Command("which", "sha256sum").Output()
-	if whichErr != nil {
-		fmt.Println("error from which", whichErr)
-	} else {
-		fmt.Println("response from which", string(whichOutput))
-	}
-
-	shaResponse, shaCmdErr := exec.Command("sha256sum", "./base64key.txt").Output()
-	removeErr := os.Remove("base64key.txt")
-	require.NoError(t, removeErr)
-	require.NoError(t, shaCmdErr, fmt.Sprintf("Error: %v : %s", shaCmdErr, string(shaResponse)))
-	shaResponseSplit := strings.Split(string(shaResponse), " ")
-	require.Equal(t, keyDigest, strings.TrimRight(shaResponseSplit[0], " -\n"))
+	//shaResponse, shaCmdErr := exec.Command("sha256sum", "./base64key.txt").Output()
+	//removeErr := os.Remove("base64key.txt")
+	//require.NoError(t, removeErr)
+	//require.NoError(t, shaCmdErr, fmt.Sprintf("Error: %v : %s", shaCmdErr, string(shaResponse)))
+	//shaResponseSplit := strings.Split(string(shaResponse), " ")
+	//require.Equal(t, keyDigest, strings.TrimRight(shaResponseSplit[0], " -\n"))
 }

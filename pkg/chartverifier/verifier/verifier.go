@@ -68,7 +68,8 @@ const (
 	ProviderDelivery BooleanKey = "provider-delivery"
 	SuppressErrorLog BooleanKey = "suppress-error-log"
 
-	Timeout DurationKey = "timeout"
+	Timeout            DurationKey = "timeout"
+	HelmInstallTimeout DurationKey = "helm-install-timeout"
 )
 
 var setStringKeys = [...]StringKey{KubeApiServer,
@@ -93,7 +94,7 @@ var setValuesKeys = [...]ValuesKey{CommandSet,
 
 var setBooleanKeys = [...]BooleanKey{ProviderDelivery, SuppressErrorLog}
 
-var setDurationKeys = [...]DurationKey{Timeout}
+var setDurationKeys = [...]DurationKey{Timeout, HelmInstallTimeout}
 
 type ApiVerifier interface {
 	SetBoolean(key BooleanKey, value bool) ApiVerifier
@@ -345,6 +346,10 @@ func (v *Verifier) Run(chart_uri string) (ApiVerifier, error) {
 
 	if durationValue, ok := v.Inputs.Flags.DurationFlags[Timeout]; ok {
 		runOptions.ClientTimeout = durationValue
+	}
+
+	if durationValue, ok := v.Inputs.Flags.DurationFlags[HelmInstallTimeout]; ok {
+		runOptions.HelmInstallTimeout = durationValue
 	}
 
 	runOptions.APIVersion = version.GetVersion()

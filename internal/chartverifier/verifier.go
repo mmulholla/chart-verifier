@@ -60,16 +60,17 @@ func (holder *AnnotationHolder) SetSupportedOpenShiftVersions(versions string) {
 }
 
 type verifier struct {
-	config           *viper.Viper
-	registry         checks.Registry
-	requiredChecks   []checks.Check
-	settings         *helmcli.EnvSettings
-	toolVersion      string
-	profile          *profiles.Profile
-	openshiftVersion string
-	providerDelivery bool
-	timeout          time.Duration
-	values           map[string]interface{}
+	config             *viper.Viper
+	registry           checks.Registry
+	requiredChecks     []checks.Check
+	settings           *helmcli.EnvSettings
+	toolVersion        string
+	profile            *profiles.Profile
+	openshiftVersion   string
+	providerDelivery   bool
+	timeout            time.Duration
+	helmInstallTimeout time.Duration
+	values             map[string]interface{}
 }
 
 func (c *verifier) subConfig(name string) *viper.Viper {
@@ -109,12 +110,13 @@ func (c *verifier) Verify(uri string) (*apiReport.Report, error) {
 			CertifiedOpenShiftVersionFlag: c.openshiftVersion}
 
 		r, checkErr := check.Func(&checks.CheckOptions{
-			HelmEnvSettings:  c.settings,
-			URI:              uri,
-			Values:           c.values,
-			ViperConfig:      c.subConfig(string(check.CheckId.Name)),
-			AnnotationHolder: &holder,
-			Timeout:          c.timeout,
+			HelmEnvSettings:    c.settings,
+			URI:                uri,
+			Values:             c.values,
+			ViperConfig:        c.subConfig(string(check.CheckId.Name)),
+			AnnotationHolder:   &holder,
+			Timeout:            c.timeout,
+			HelmInstallTimeout: c.helmInstallTimeout,
 		})
 
 		if checkErr != nil {

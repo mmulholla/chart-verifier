@@ -35,6 +35,7 @@ type VerifierBuilder interface {
 	SetOpenShiftVersion(string) VerifierBuilder
 	SetProviderDelivery(bool) VerifierBuilder
 	SetTimeout(time.Duration) VerifierBuilder
+	SetHelmInstallTimeout(time.Duration) VerifierBuilder
 	SetSettings(settings *cli.EnvSettings) VerifierBuilder
 	Build() (Verifier, error)
 }

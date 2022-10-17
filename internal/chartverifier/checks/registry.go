@@ -85,6 +85,8 @@ type CheckOptions struct {
 	AnnotationHolder AnnotationHolder
 	// client timeout
 	Timeout time.Duration
+	// helm install timeout
+	HelmInstallTimeout time.Duration
 }
 
 type CheckFunc func(options *CheckOptions) (Result, error)

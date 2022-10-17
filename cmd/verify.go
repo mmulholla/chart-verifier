@@ -62,6 +62,8 @@ var (
 	providerDelivery bool
 	//client timeout
 	clientTimeout time.Duration
+	//helm install timeout
+	helmInstallTimeout time.Duration
 )
 
 func buildChecks(enabled []string, unEnabled []string) ([]apiChecks.CheckName, []apiChecks.CheckName, error) {
@@ -160,6 +162,7 @@ func NewVerifyCmd(config *viper.Viper) *cobra.Command {
 			utils.LogInfo(fmt.Sprintf("Chart Verifer %s.", apiversion.GetVersion()))
 			utils.LogInfo(fmt.Sprintf("Verify : %s", args[0]))
 			utils.LogInfo(fmt.Sprintf("Client timeout: %s", clientTimeout))
+			utils.LogInfo(fmt.Sprintf("Helm Install timeout: %s", helmInstallTimeout))
 
 			valueMap := convertToMap(verifyOpts.Values)
 			for key, val := range viper.AllSettings() {
@@ -178,6 +181,7 @@ func NewVerifyCmd(config *viper.Viper) *cobra.Command {
 			verifier, runErr = verifier.SetBoolean(apiverifier.ProviderDelivery, providerDelivery).
 				SetBoolean(apiverifier.SuppressErrorLog, suppressErrorLog).
 				SetDuration(apiverifier.Timeout, clientTimeout).
+				SetDuration(apiverifier.HelmInstallTimeout, helmInstallTimeout).
 				SetString(apiverifier.OpenshiftVersion, []string{openshiftVersionFlag}).
 				SetString(apiverifier.ChartValues, opts.ValueFiles).
 				SetString(apiverifier.KubeApiServer, []string{settings.KubeAPIServer}).
@@ -238,6 +242,7 @@ func NewVerifyCmd(config *viper.Viper) *cobra.Command {
 	cmd.Flags().BoolVarP(&reportToFile, "write-to-file", "w", false, "write report to ./chartverifier/report.yaml (default: stdout)")
 	cmd.Flags().BoolVarP(&suppressErrorLog, "suppress-error-log", "E", false, "suppress the error log (default: written to ./chartverifier/verifier-<timestamp>.log)")
 	cmd.Flags().BoolVarP(&providerDelivery, "provider-delivery", "d", false, "chart provider will provide the chart delivery mechanism (default: false)")
+	cmd.Flags().DurationVar(&helmInstallTimeout, "helm-install-timeout", 5*time.Minute, "helm install timeout")
 	return cmd
 }
 

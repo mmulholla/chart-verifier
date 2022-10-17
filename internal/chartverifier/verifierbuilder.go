@@ -65,6 +65,7 @@ type verifierBuilder struct {
 	suppportedOpenshiftVersions string
 	providerDelivery            bool
 	timeout                     time.Duration
+	helmInstallTimeout          time.Duration
 	values                      map[string]interface{}
 	settings                    *cli.EnvSettings
 }
@@ -123,6 +124,11 @@ func (b *verifierBuilder) SetTimeout(timeout time.Duration) VerifierBuilder {
 	return b
 }
 
+func (b *verifierBuilder) SetHelmInstallTimeout(timeout time.Duration) VerifierBuilder {
+	b.helmInstallTimeout = timeout
+	return b
+}
+
 func (b *verifierBuilder) GetConfig() *viper.Viper {
 	return b.config
 }
@@ -153,16 +159,17 @@ func (b *verifierBuilder) Build() (Verifier, error) {
 	profile := profiles.Get()
 
 	return &verifier{
-		config:           b.config,
-		registry:         b.registry,
-		requiredChecks:   requiredChecks,
-		settings:         b.settings,
-		toolVersion:      b.toolVersion,
-		profile:          profile,
-		openshiftVersion: b.openshiftVersion,
-		providerDelivery: b.providerDelivery,
-		timeout:          b.timeout,
-		values:           b.values,
+		config:             b.config,
+		registry:           b.registry,
+		requiredChecks:     requiredChecks,
+		settings:           b.settings,
+		toolVersion:        b.toolVersion,
+		profile:            profile,
+		openshiftVersion:   b.openshiftVersion,
+		providerDelivery:   b.providerDelivery,
+		timeout:            b.timeout,
+		helmInstallTimeout: b.helmInstallTimeout,
+		values:             b.values,
 	}, nil
 }
 

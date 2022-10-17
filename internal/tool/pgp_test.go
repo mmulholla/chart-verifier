@@ -80,7 +80,7 @@ func TestDigest2(t *testing.T) {
 	base64KeyFromCmd, _ := base64Cmd.Output()
 
 	base64Key := strings.Trim(string(base64KeyFromCmd), " -\n")
-	strings.Replace(base64Key, "\n", "", -1)
+	base64Key = strings.Replace(base64Key, "\n", "", -1)
 	t.Logf("Base64 from cmd: -->%s<--", base64Key)
 
 	encodedKey, encodeErr := GetEncodedKey(keyfileName)

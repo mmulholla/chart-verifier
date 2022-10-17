@@ -79,7 +79,7 @@ func TestDigest2(t *testing.T) {
 	base64Cmd := exec.Command("base64", "-i", keyfileName)
 	base64KeyFromCmd, _ := base64Cmd.Output()
 
-	base64Key := strings.TrimRight(string(base64KeyFromCmd), " -\n")
+	base64Key := strings.Trim(string(base64KeyFromCmd), " -\n")
 
 	encodedKey, encodeErr := GetEncodedKey(keyfileName)
 	require.NoError(t, encodeErr)

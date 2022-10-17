@@ -199,7 +199,7 @@ def run_verify_tarball_image(tarball_name,profile_type, chart_location,pgp_key_l
     tar.extractall(path="./test_verifier")
 
     if pgp_key_location:
-        out = subprocess.run(["./test_verifier/chart-verifier","verify","--set",f"profile.vendorType={profile_type}",f"--pgp-public-key {pgp_key_location}",chart_location],capture_output=True)
+        out = subprocess.run(["./test_verifier/chart-verifier","verify","--set",f"profile.vendorType={profile_type}","--pgp-public-key",pgp_key_location,chart_location],capture_output=True)
     else:
         out = subprocess.run(["./test_verifier/chart-verifier","verify","--set",f"profile.vendorType={profile_type}",chart_location],capture_output=True)
 

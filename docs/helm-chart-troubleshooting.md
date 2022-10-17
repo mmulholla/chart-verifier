@@ -131,7 +131,11 @@ $ podman run --rm -i \
 Requires the following annotation to be present in chart.yaml:
 - ```charts.openshift.io/name```
 
-The value of thet annotation will be used in the Open Shift catalogue as the name of the chart.
+The value of the annotation will be used in the Open Shift catalogue as the name of the chart.
+
+### `signature-is-valid`
+
+Checks, for a signed chart that it has a valid signature. For a non signed chart the check result is SKIPPED.
 
 ## Report related submission failures
 

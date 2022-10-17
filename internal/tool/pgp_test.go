@@ -50,7 +50,7 @@ func TestPGPKeyEncoding(t *testing.T) {
 	//require.Equal(t, keyDigest, strings.TrimRight(shaResponseSplit[0], " -\n"))
 }
 
-func TestDigest(t *testing.T) {
+func TestDigest1(t *testing.T) {
 	keyfileName := "../../tests/charts/psql-service/0.1.11/psql-service-0.1.11.tgz.key"
 	expectedDigest := "1cc31121e86388fad29e4cc6fc6660f102f43d8c52ce5f7d54e134c3cb94adc2"
 
@@ -64,6 +64,39 @@ func TestDigest(t *testing.T) {
 	_ = sha256cmd.Start()
 	_ = base64Cmd.Run()
 	_ = sha256cmd.Wait
+
+	t.Logf("sha256: %s", sha256Value.String())
+	shaResponseSplit := strings.Split(sha256Value.String(), " ")
+	require.Equal(t, expectedDigest, strings.TrimRight(shaResponseSplit[0], " -\n"))
+
+}
+
+func TestDigest2(t *testing.T) {
+
+	keyfileName := "../../tests/charts/psql-service/0.1.11/psql-service-0.1.11.tgz.key"
+	expectedDigest := "1cc31121e86388fad29e4cc6fc6660f102f43d8c52ce5f7d54e134c3cb94adc2"
+
+	base64Cmd := exec.Command("base64", "-i", keyfileName)
+	base64KeyFromCmd, _ := base64Cmd.Output()
+
+	base64Key := strings.TrimRight(string(base64KeyFromCmd), " -\n")
+
+	encodedKey, encodeErr := GetEncodedKey(keyfileName)
+	require.NoError(t, encodeErr)
+	require.True(t, len(encodedKey) > 0)
+
+	require.Equal(t, encodedKey, base64Key)
+
+	base64Echo := exec.Command("echo", base64Key)
+	sha256cmd := exec.Command("sha256sum")
+
+	sha256Value := bytes.NewBufferString("")
+	sha256cmd.Stdin, _ = base64Echo.StdoutPipe()
+	sha256cmd.Stdout = sha256Value
+
+	_ = sha256cmd.Start()
+	_ = base64Echo.Run()
+	_ = sha256cmd.Wait()
 
 	t.Logf("sha256: %s", sha256Value.String())
 	shaResponseSplit := strings.Split(sha256Value.String(), " ")

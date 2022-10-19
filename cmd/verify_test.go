@@ -324,6 +324,28 @@ func TestSignatureCheck(t *testing.T) {
 		require.Contains(t, outBuf.String(), checks.SignatureIsNotPresentSuccess)
 	})
 
+	t.Run("Unsigned chart with key should pass", func(t *testing.T) {
+
+		cmd := NewVerifyCmd(viper.New())
+		outBuf := bytes.NewBufferString("")
+		utils.CmdStdout = outBuf
+		errBuf := bytes.NewBufferString("")
+		cmd.SetErr(errBuf)
+
+		cmd.SetArgs([]string{
+			"-e", "signature-is-valid", // only consider a single check, perhaps more checks in the future
+			"-k", "../tests/charts/psql-service/0.1.11/psql-service-0.1.11.tgz.key",
+			"../internal/chartverifier/checks/chart-0.1.0-v3.valid.tgz",
+			"-E"})
+
+		require.NoError(t, cmd.Execute())
+		require.NotEmpty(t, outBuf.String())
+
+		require.Contains(t, outBuf.String(), "outcome: SKIPPED")
+		require.Contains(t, outBuf.String(), checks.ChartNotSigned)
+		require.Contains(t, outBuf.String(), checks.SignatureIsNotPresentSuccess)
+	})
+
 	t.Run("Signed chart with key should pass", func(t *testing.T) {
 
 		cmd := NewVerifyCmd(viper.New())
@@ -368,7 +390,7 @@ func TestSignatureCheck(t *testing.T) {
 		require.Contains(t, outBuf.String(), checks.SignatureFailure)
 	})
 
-	t.Run("Signed chart with no key should fail", func(t *testing.T) {
+	t.Run("Signed chart with no key should skip", func(t *testing.T) {
 
 		cmd := NewVerifyCmd(viper.New())
 		outBuf := bytes.NewBufferString("")
@@ -384,9 +406,9 @@ func TestSignatureCheck(t *testing.T) {
 		require.NoError(t, cmd.Execute())
 		require.NotEmpty(t, outBuf.String())
 
-		require.Contains(t, outBuf.String(), "outcome: FAIL")
+		require.Contains(t, outBuf.String(), "outcome: SKIPPED")
 		require.Contains(t, outBuf.String(), checks.ChartSigned)
-		require.Contains(t, outBuf.String(), checks.SignatureNoKeyFailure)
+		require.Contains(t, outBuf.String(), checks.SignatureNoKey)
 	})
 
 }

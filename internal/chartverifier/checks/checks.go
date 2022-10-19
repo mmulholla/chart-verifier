@@ -71,7 +71,7 @@ const (
 	SignatureIsNotPresentSuccess = "Signature verification not required"
 	SignatureIsValidSuccess      = "Signature verification passed"
 	SignatureFailure             = "Signature verification failed"
-	SignatureNoKeyFailure        = "Signature verification failed, a public key must be specified"
+	SignatureNoKey               = "Signature verification skipped, a public key was not specified"
 )
 
 var (
@@ -358,7 +358,7 @@ func SignatureIsValid(opts *CheckOptions) (Result, error) {
 		} else if strings.HasSuffix(chartPath, ".tgz?raw=true") {
 			provFile = strings.Replace(chartPath, ".tgz?", ".tgz.prov?", 1)
 		} else {
-			return getNotSignedSignatureResult(opts.PublicKeys), nil
+			return NewSkippedResult(fmt.Sprintf("%s : %s", ChartNotSigned, SignatureIsNotPresentSuccess)), nil
 		}
 		provFileUrl, err := url.Parse(provFile)
 		if err != nil {
@@ -368,7 +368,7 @@ func SignatureIsValid(opts *CheckOptions) (Result, error) {
 		if err != nil {
 			return NewResult(false, fmt.Sprintf("%s : get error was %v", SignatureFailure, err)), nil
 		} else if resp.StatusCode == 404 {
-			return getNotSignedSignatureResult(opts.PublicKeys), nil
+			return NewSkippedResult(fmt.Sprintf("%s : %s", ChartNotSigned, SignatureIsNotPresentSuccess)), nil
 		} else if resp.StatusCode != 200 {
 			return NewResult(false, fmt.Sprintf("%s. get prov file response code was %d", SignatureFailure, resp.StatusCode)), nil
 		}
@@ -390,10 +390,10 @@ func SignatureIsValid(opts *CheckOptions) (Result, error) {
 		if strings.HasSuffix(chartPath, ".tgz") {
 			provFile = chartPath + ".prov"
 			if _, err := os.Stat(provFile); err != nil {
-				return getNotSignedSignatureResult(opts.PublicKeys), nil
+				return NewSkippedResult(fmt.Sprintf("%s : %s", ChartNotSigned, SignatureIsNotPresentSuccess)), nil
 			}
 		} else {
-			return getNotSignedSignatureResult(opts.PublicKeys), nil
+			return NewSkippedResult(fmt.Sprintf("%s : %s", ChartNotSigned, SignatureIsNotPresentSuccess)), nil
 		}
 	default:
 		return NewResult(false, fmt.Sprintf("%s: scheme %q not supported", SignatureFailure, chartUrl.Scheme)), nil
@@ -408,7 +408,7 @@ func SignatureIsValid(opts *CheckOptions) (Result, error) {
 			return NewResult(false, fmt.Sprintf("%s : %s : failed to create keyring : %v", ChartSigned, SignatureFailure, err)), nil
 		}
 	} else {
-		return NewResult(false, fmt.Sprintf("%s : %s : public key is required.", ChartSigned, SignatureNoKeyFailure)), nil
+		return NewSkippedResult(fmt.Sprintf("%s : %s", ChartSigned, SignatureNoKey)), nil
 	}
 
 	if _, err := os.Stat(keyringFilename); err != nil {
@@ -426,14 +426,6 @@ func SignatureIsValid(opts *CheckOptions) (Result, error) {
 
 }
 
-func getNotSignedSignatureResult(publicKeys []string) Result {
-	if len(publicKeys) > 0 && len(publicKeys[0]) > 1 {
-		return NewResult(false, fmt.Sprintf("%s : %s : public key provided for unsigned chart", ChartNotSigned, SignatureFailure))
-	} else {
-		return NewSkippedResult(fmt.Sprintf("%s : %s", ChartNotSigned, SignatureIsNotPresentSuccess))
-	}
-
-}
 func parseImageReference(image string) pyxis.ImageReference {
 
 	imageRef := pyxis.ImageReference{}

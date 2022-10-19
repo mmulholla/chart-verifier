@@ -306,11 +306,11 @@ Each profile also has a version and currently there are three profile versions: 
 
 ### Profile v1.2
 
-Compared to profile v1.1, adds a new mandatory check:
+Compared to profile v1.1, adds a new check:
 
 | check | partner | RedHat | community | default |
 |-------|---------|--------|-----------|---------
-| [signature-is-valid v1.0](helm-chart-troubleshooting.md##signature-is-valid-v10) | mandatory | mandatory | optional | mandatory
+| [signature-is-valid v1.0](helm-chart-troubleshooting.md#signature-is-valid-v10) | mandatory | mandatory | optional | mandatory
 
 ### Profile v1.1
 
@@ -344,7 +344,6 @@ This table shows which checks are preformed and whether or not they ar mnandator
 | [chart-testing v1.0](helm-chart-troubleshooting.md#chart-testing-v10) | mandatory | mandatory | optional | mandatory
 | [contains-values v1.0](helm-chart-troubleshooting.md#contains-values-v10)  | mandatory | mandatory | optional | mandatory
 | [required-annotations-present v1.0](helm-chart-troubleshooting.md#required-annotations-present-v10) | mandatory | mandatory | optional | mandatory
-| [signature-is-valid v1.0](helm-chart-troubleshooting.md#signature-is-valid) | mandatory | mandatory | optional 
 
 
 ### Profile 1.0
@@ -478,5 +477,5 @@ In profile v1.2 a new mandatory check is added for signed charts. For informatio
 - For a non-signed chart:
   - the check result will be "SKIPPED" which is considered a PASS for chart certification purposes.
     
-For troubleshooting this check see: [signature-is-valid v1.0](helm-chart-troubleshooting.md#signature-is-valid).
+For troubleshooting this check see: [signature-is-valid v1.0](helm-chart-troubleshooting.md#signature-is-valid-v10).
     

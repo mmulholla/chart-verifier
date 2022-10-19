@@ -135,7 +135,13 @@ The value of the annotation will be used in the Open Shift catalogue as the name
 
 ### `signature-is-valid`
 
-Checks, for a signed chart that it has a valid signature. For a non signed chart the check result is SKIPPED.
+For a signed chart requires the public key provided to the chart verifier is from a user that has access to the signed chart. The check can fail for a variety of reasons, including:
+- pgp public key file specified does not exist.
+- pgp public key file is not an ascii public key file.
+    - create using: ```gpg --export -a <User-Name> > <public-key-file>```
+- pgp public key file does noy have access to the signed chart.
+    - ensure the public key matches the secret key used to sign the chart. 
+
 
 ## Report related submission failures
 

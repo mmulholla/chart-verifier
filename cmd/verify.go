@@ -249,7 +249,7 @@ func NewVerifyCmd(config *viper.Viper) *cobra.Command {
 	cmd.Flags().BoolVarP(&reportToFile, "write-to-file", "w", false, "write report to ./chartverifier/report.yaml (default: stdout)")
 	cmd.Flags().BoolVarP(&suppressErrorLog, "suppress-error-log", "E", false, "suppress the error log (default: written to ./chartverifier/verifier-<timestamp>.log)")
 	cmd.Flags().BoolVarP(&providerDelivery, "provider-delivery", "d", false, "chart provider will provide the chart delivery mechanism (default: false)")
-	cmd.Flags().StringVarP(&pgpPublicKeyFile, "pgp-public-key", "k", "", "file containing gpg public key of the key used to sign the chart (required if chart is signed).")
+	cmd.Flags().StringVarP(&pgpPublicKeyFile, "pgp-public-key", "k", "", "file containing gpg public key of the key used to sign the chart")
 	return cmd
 }
 

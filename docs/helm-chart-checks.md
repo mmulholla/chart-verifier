@@ -18,6 +18,7 @@ Helm chart checks are a set of checks against which the Red Hat Helm chart-verif
     - [Cluster Config](#cluster-config)
     - [Override values](#override-values)
     - [Check processing](#check-processing)
+- [Signed Charts](#signed-charts)
 
 ## Key features
 - You can execute all of the mandatory checks.
@@ -33,6 +34,7 @@ Helm chart checks are a set of checks against which the Red Hat Helm chart-verif
 - An error log is created for all verify commands but can be optionally suppressed.
 - You can indicate that a chart is not to be published in the OpenShift catalog.
 - From chart verifier version 1.9.0 the generated report includes a sha value based on the report content. This is used during the submission process to verify the integrity of the report.
+- You can verify a signed chart
 
 ## Types of Helm chart checks
 Helm chart checks are categorized into the following types:
@@ -332,6 +334,8 @@ This table shows which checks are preformed and whether or not they ar mnandator
 | [chart-testing v1.0](helm-chart-troubleshooting.md#chart-testing-v10) | mandatory | mandatory | optional | mandatory
 | [contains-values v1.0](helm-chart-troubleshooting.md#contains-values-v10)  | mandatory | mandatory | optional | mandatory
 | [required-annotations-present v1.0](helm-chart-troubleshooting.md#required-annotations-present-v10) | mandatory | mandatory | optional | mandatory
+| [signature-is-valid v1.0](helm-chart-troubleshooting.md#signature-is-valid) | mandatory | mandatory | optional 
+
 
 ### Profile 1.0
 
@@ -446,3 +450,22 @@ The `chart-testing` check performs the following actions, keeping the semantics 
 1. Test: once a release is installed for the chart being verified, performs the same actions as helm test would, which installing all chart resources containing the "helm.sh/hook": test annotation.
 
 The check will be considered successful when the chart's installation and tests are all successful.
+
+## Signed charts
+
+In profile v1.2 a new mandatory check is added for signed charts. For information on signed charts see [helm provenance and integrity](https://helm.sh/docs/topics/provenance/).
+- For a signed chart:
+  - The check requires a pgp public key file to run.
+    - Ensures a signed chart is validly signed for the public key which will be provided to users to verify the chart.
+    - Specify the public key file using the flag: ```--pgp-public-key <public-key-file>```
+    - The check runs ```helm verify``` using the public key
+       - If ```helm verify``` fails the check will fail.
+       - For information on ```helm verify``` see [helm verify](https://helm.sh/docs/helm/helm_verify) 
+    - To create the pgp public key file:
+      - run: ```gpg --export -a <User-Name> > <public-key-file>```
+        - User-Name is the user name of the secret key used to sign the chart.
+  - If a pgp public key is not provided the check result will be "SKIPPED" which is considered a PASS for chart certification purposes.
+- For a non-signed chart:
+  - the check result will be "SKIPPED" which is considered a PASS for chart certification purposes.
+
+The check ensures a signed chart is validly signed for the public key which will be provided to users to verify the chart.

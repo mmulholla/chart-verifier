@@ -11,6 +11,7 @@ Helm chart checks are a set of checks against which the Red Hat Helm chart-verif
     - [The error log](#the-error-log)
     - [Using the chart-verifier binary for Helm chart checks (Linux only)](#using-the-chart-verifier-binary-for-helm-chart-checks-linux-only)
 - [Profiles](#profiles)
+    - [Profile v1.2](#profile-v12)
     - [Profile v1.1](#profile-v11)
     - [Profile v1.0](#profile-10)
     - [Running the chart verifier with a specific profile](#running-the-chart-verifier-with-a-specific-profile)
@@ -34,7 +35,7 @@ Helm chart checks are a set of checks against which the Red Hat Helm chart-verif
 - An error log is created for all verify commands but can be optionally suppressed.
 - You can indicate that a chart is not to be published in the OpenShift catalog.
 - From chart verifier version 1.9.0 the generated report includes a sha value based on the report content. This is used during the submission process to verify the integrity of the report.
-- You can verify a signed chart
+- You can verify a signed chart. See: [Signed Charts](#signed-charts).
 
 ## Types of Helm chart checks
 Helm chart checks are categorized into the following types:
@@ -68,7 +69,7 @@ The following table lists the set of checks for each profile version with detail
 | [chart-testing v1.0](helm-chart-troubleshooting.md#chart-testing-v10) | [chart-testing v1.0](helm-chart-troubleshooting.md#chart-testing-v10) | [chart-testing v1.0](helm-chart-troubleshooting.md#chart-testing-v10)  | Installs the chart and verifies it on a Red Hat OpenShift Container Platform cluster.
 | [contains-values v1.0](helm-chart-troubleshooting.md#contains-values-v10) | [contains-values v1.0](helm-chart-troubleshooting.md#contains-values-v10)  | [contains-values  v1.0](helm-chart-troubleshooting.md#contains-values-v10) | Checks that the Helm chart contains the `values`[¹](https://github.com/redhat-certification/chart-verifier/blob/main/docs/helm-chart-checks.md#-for-more-information-on-the-values-file-see-values-and-best-practices-for-using-values) file.
 | [required-annotations-present v1.0](helm-chart-troubleshooting.md#required-annotations-present-v10) | [required-annotations-present v1.0](helm-chart-troubleshooting.md#required-annotations-present-v10) | - | Checks that the Helm chart contains the annotation: ```charts.openshift.io/name```.
-| [signature-is-valid v1.0](helm-chart-troubleshooting.md#signature-is-valid) | - | - | Verifies a signed chart based on a provided public key |  
+| [signature-is-valid v1.0](helm-chart-troubleshooting.md#signature-is-valid-v10) | - | - | Verifies a signed chart based on a provided public key |  
 #
 ###### ¹ For more information on the `values` file, see [`values`](https://helm.sh/docs/chart_template_guide/values_files/) and [Best Practices for using values](https://helm.sh/docs/chart_best_practices/values/).
 
@@ -301,7 +302,15 @@ A profile defines a set of checks to run and an indication of whether each check
   - The default is the same as the partner profile and is used if a specific one is not specified.
   - All checks are mandatory.
 
-Each profile also has a version and currently there are two profile versions: v1.0 and v1.1. The `developer-console` just has one profile version v1.0.
+Each profile also has a version and currently there are three profile versions: v1.0, v1.1 and v1.2. The `developer-console` just has one profile version v1.0.
+
+### Profile v1.2
+
+Compared to profile v1.1, adds a new mandatory check:
+
+| check | partner | RedHat | community | default |
+|-------|---------|--------|-----------|---------
+| [signature-is-valid v1.0](helm-chart-troubleshooting.md##signature-is-valid-v10) | mandatory | mandatory | optional | mandatory
 
 ### Profile v1.1
 
@@ -468,5 +477,6 @@ In profile v1.2 a new mandatory check is added for signed charts. For informatio
   - If a pgp public key is not provided the check result will be "SKIPPED" which is considered a PASS for chart certification purposes.
 - For a non-signed chart:
   - the check result will be "SKIPPED" which is considered a PASS for chart certification purposes.
-
-The check ensures a signed chart is validly signed for the public key which will be provided to users to verify the chart.
+    
+For troubleshooting this check see: [signature-is-valid v1.0](helm-chart-troubleshooting.md#signature-is-valid).
+    

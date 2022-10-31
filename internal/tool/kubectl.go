@@ -3,7 +3,10 @@ package tool
 import (
 	"context"
 	"embed"
+	"errors"
 	"fmt"
+	"strings"
+	"time"
 
 	"gopkg.in/yaml.v3"
 	"helm.sh/helm/v3/pkg/cli"
@@ -79,20 +82,46 @@ func NewKubectl(kubeConfig clientcmd.ClientConfig) (*Kubectl, error) {
 }
 
 func (k Kubectl) WaitForDeployments(context context.Context, namespace string, selector string) error {
-	deployments, err := k.clientset.AppsV1().Deployments(namespace).List(context, metav1.ListOptions{
-		LabelSelector: selector,
-	})
-	if err != nil {
-		return err
+	deadline, _ := context.Deadline()
+	unavailableDeployments := []string{"None"}
+	getDeploymentsError := ""
+
+	utils.LogInfo(fmt.Sprintf("Start wait for deployments. --timeout time left: %s ", deadline.Sub(time.Now()).String()))
+
+	for deadline.After(time.Now()) && len(unavailableDeployments) > 0 {
+		unavailableDeployments = []string{}
+		deployments, err := k.clientset.AppsV1().Deployments(namespace).List(context, metav1.ListOptions{
+			LabelSelector: selector,
+		})
+		if err != nil {
+			unavailableDeployments = []string{"None"}
+			getDeploymentsError = fmt.Sprintf("error getting deployments from namespace %s : %v", namespace, err)
+			utils.LogWarning(getDeploymentsError)
+		} else {
+			getDeploymentsError = ""
+			for _, deployment := range deployments.Items {
+				// Just after rollout, pods from the previous deployment revision may still be in a
+				// terminating state.
+				unavailableDeployments = append(unavailableDeployments, deployment.Name)
+			}
+			if len(unavailableDeployments) > 0 {
+				utils.LogInfo(fmt.Sprintf("Wait for unavailable deployments: %v", strings.Join(unavailableDeployments, ",")))
+				time.Sleep(time.Second)
+			} else {
+				utils.LogInfo(fmt.Sprintf("Finish wait for deployments, --timeout time left %s", deadline.Sub(time.Now()).String()))
+			}
+		}
 	}
 
-	for _, deployment := range deployments.Items {
-		// Just after rollout, pods from the previous deployment revision may still be in a
-		// terminating state.
-		unavailable := deployment.Status.UnavailableReplicas
-		if unavailable != 0 {
-			return fmt.Errorf("%d replicas unavailable", unavailable)
-		}
+	if len(getDeploymentsError) > 0 {
+		errorMsg := fmt.Sprintf("Time out retrying after %s", getDeploymentsError)
+		utils.LogError(errorMsg)
+		return errors.New(errorMsg)
+	}
+	if len(unavailableDeployments) > 0 {
+		errorMsg := fmt.Sprintf("Time out waiting for unavailable deployments: %v", strings.Join(unavailableDeployments, ","))
+		utils.LogError(errorMsg)
+		return errors.New(errorMsg)
 	}
 
 	return nil

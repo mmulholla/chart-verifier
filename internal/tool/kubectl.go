@@ -5,7 +5,6 @@ import (
 	"embed"
 	"errors"
 	"fmt"
-	"strings"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -34,6 +33,11 @@ type versionMap struct {
 type versionMapping struct {
 	KubeVersion string `yaml:"kube-version"`
 	OcpVersion  string `yaml:"ocp-version"`
+}
+
+type deploymentNotReady struct {
+	Name        string
+	Unavailable int32
 }
 
 func init() {
@@ -83,18 +87,18 @@ func NewKubectl(kubeConfig clientcmd.ClientConfig) (*Kubectl, error) {
 
 func (k Kubectl) WaitForDeployments(context context.Context, namespace string, selector string) error {
 	deadline, _ := context.Deadline()
-	unavailableDeployments := []string{"None"}
+	unavailableDeployments := []deploymentNotReady{{Name: "none", Unavailable: 1}}
 	getDeploymentsError := ""
 
 	utils.LogInfo(fmt.Sprintf("Start wait for deployments. --timeout time left: %s ", deadline.Sub(time.Now()).String()))
 
 	for deadline.After(time.Now()) && len(unavailableDeployments) > 0 {
-		unavailableDeployments = []string{}
+		unavailableDeployments = []deploymentNotReady{}
 		deployments, err := k.clientset.AppsV1().Deployments(namespace).List(context, metav1.ListOptions{
 			LabelSelector: selector,
 		})
 		if err != nil {
-			unavailableDeployments = []string{"None"}
+			unavailableDeployments = []deploymentNotReady{{Name: "none", Unavailable: 1}}
 			getDeploymentsError = fmt.Sprintf("error getting deployments from namespace %s : %v", namespace, err)
 			utils.LogWarning(getDeploymentsError)
 		} else {
@@ -102,10 +106,15 @@ func (k Kubectl) WaitForDeployments(context context.Context, namespace string, s
 			for _, deployment := range deployments.Items {
 				// Just after rollout, pods from the previous deployment revision may still be in a
 				// terminating state.
-				unavailableDeployments = append(unavailableDeployments, deployment.Name)
+				if deployment.Status.UnavailableReplicas > 0 {
+					unavailableDeployments = append(unavailableDeployments, deploymentNotReady{Name: deployment.Name, Unavailable: deployment.Status.UnavailableReplicas})
+				}
 			}
 			if len(unavailableDeployments) > 0 {
-				utils.LogInfo(fmt.Sprintf("Wait for unavailable deployments: %v", strings.Join(unavailableDeployments, ",")))
+				utils.LogInfo(fmt.Sprintf("Wait for %d deployments:", len(unavailableDeployments)))
+				for _, unavailableDeployment := range unavailableDeployments {
+					utils.LogInfo(fmt.Sprintf("    - %s with %d unavailable replicas", unavailableDeployment.Name, unavailableDeployment.Unavailable))
+				}
 				time.Sleep(time.Second)
 			} else {
 				utils.LogInfo(fmt.Sprintf("Finish wait for deployments, --timeout time left %s", deadline.Sub(time.Now()).String()))
@@ -119,7 +128,7 @@ func (k Kubectl) WaitForDeployments(context context.Context, namespace string, s
 		return errors.New(errorMsg)
 	}
 	if len(unavailableDeployments) > 0 {
-		errorMsg := fmt.Sprintf("Time out waiting for unavailable deployments: %v", strings.Join(unavailableDeployments, ","))
+		errorMsg := fmt.Sprintf("Error unavailable deployments, timeout has expired, please consider increasing the timeout using the chart-verifier --timeout flag")
 		utils.LogError(errorMsg)
 		return errors.New(errorMsg)
 	}

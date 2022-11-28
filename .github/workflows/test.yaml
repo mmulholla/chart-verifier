@@ -1,0 +1,21 @@
+name: Test stuff
+on:
+    workflow_dispatch:
+
+jobs:
+    build:
+        name: Test flows
+        runs-on: ubuntu-latest
+
+        steps:
+            -  name: step_1
+               run: |
+                   echo "GITHUB_OUPUT = $GITHUB_OUPUT"
+                   echo "{step1a}={first_step_a}" >> $GITHUB_OUTPUT
+                   echo "step1b=first_step_b" >> $GITHUB_OUPUT
+
+            -  name: step 2
+               run: |
+                   echo ${{ steps.step_1.step1a }}
+                   echo ${{ steps.step_1.step1b }}
+

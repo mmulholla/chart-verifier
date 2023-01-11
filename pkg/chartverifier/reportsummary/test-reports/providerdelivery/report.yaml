@@ -2,10 +2,11 @@ apiversion: v1
 kind: verify-report
 metadata:
     tool:
-        verifier-version: 1.8.0
+        verifier-version: 1.9.0
         profile:
             VendorType: partner
             version: v1.1
+        reportDigest: uint64:4230928429753226484
         chart-uri: https://github.com/redhat-certification/chart-verifier/blob/main/tests/charts/psql-service/0.1.9/psql-service-0.1.9.tgz?raw=true
         digests:
             chart: sha256:9f4d290c9a89f2900c3ffe9c1680c2ac2e61a34619e526de4652e2f2dbf4609b
@@ -13,7 +14,7 @@ metadata:
         lastCertifiedTimestamp: "2022-07-11T12:31:05.853002-04:00"
         testedOpenShiftVersion: "4.10"
         supportedOpenShiftVersions: '>=4.7'
-        webCatalogOnly: false
+        providerControlledDelivery: false
     chart:
         name: psql-service
         home: ""

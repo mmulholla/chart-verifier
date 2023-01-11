@@ -37,6 +37,7 @@ type ToolMetadata struct {
 	TestedOpenShiftVersion     string  `json:"testedOpenShiftVersion,omitempty" yaml:"testedOpenShiftVersion,omitempty"`
 	SupportedOpenShiftVersions string  `json:"supportedOpenShiftVersions,omitempty" yaml:"supportedOpenShiftVersions,omitempty"`
 	ProviderDelivery           bool    `json:"providerControlledDelivery" yaml:"providerControlledDelivery"`
+	WebCatalogOnly             bool    `json:"webCatalogOnly" yaml:"webCatalogOnly"`
 }
 
 type Digests struct {

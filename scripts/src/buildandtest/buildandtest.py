@@ -41,8 +41,8 @@ def build_image(image_id):
     except docker.errors.BuildError as buildError:
         print("docker build error")
         for line in buildError.build_log:
-        if 'stream' in line:
-            logger.error(line['stream'].strip())
+            if 'stream' in line:
+                logger.error(line['stream'].strip())
         return False
     except  docker.errors.APIError:
         print ("docker API error")
